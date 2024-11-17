@@ -20,13 +20,14 @@ closeContract: Closes a currently open option contract
 getContract: Gets an option contract corresponding to the contractId we've assigned it
 deleteContract: Deletes a contract. This is different from closeContract, as we want to get rid of all records corresponding to this contract.
 
-Contract class:
-contractId: This will be a unique increasing number(starting from 1) which maps to a contract
+OptionsPosition class:
+positionId: This will be a unique increasing number(starting from 1) which maps to a contract
 ticker
+contractType: Put or call
+quantity: The number of contracts opened. Positive = long, negative = short
 strikePrice
 expiryDate
-amount: The number of contracts opened
-price: The price of the contract per underlying asset
+premium: The price of the contract per underlying asset
 openPrice: The price of the underlying asset when we opened this contract
 openDate: The date when we opened this contract
 profit: The total profit generated from these contracts. This takes into account opportunity cost too. For instance, for covered calls,
