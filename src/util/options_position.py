@@ -22,7 +22,6 @@ class OptionsPosition:
     Represents an options position for an underlying security.
 
     Attributes:
-        position_id (int): The ID for this position for storage purposes
         ticker (str): The ticker symbol(ex: AAPL) for the underlying security
         contract_type (ContractType): The type of contract
         quantity (int): The number of contracts opened
@@ -34,7 +33,6 @@ class OptionsPosition:
         contract_status (PositionStatus): The status of the options position
     """
 
-    position_id: int # FIGURE OUT HOW WE WANT TO KEEP TRACK OF AND ASSIGN THIS, likely just use a local file to read and store from it
     ticker: str
     contract_type: ContractType
     quantity: int
@@ -43,7 +41,7 @@ class OptionsPosition:
     premium: float
     open_price: float
     open_date: str
-    contract_status: PositionStatus
+    position_status: PositionStatus
 
     # Unimplemented for now, uncomment when you come around to implementing this
     # ex: sold call on X, strike price 95, premium 1, expired at 100. profit = 1 + 95 - 100 = -4
@@ -59,7 +57,8 @@ class OptionsPosition:
         expiration_date: str,
         premium: float,
         open_price: float,
-        open_date: str
+        open_date: str,
+        position_status: PositionStatus
     ):
         # Validating that expiration date and open date fit the YYYY-MM-DD format
         self.__validate_date_format(expiration_date)
@@ -73,6 +72,23 @@ class OptionsPosition:
         self.premium = premium
         self.open_price = open_price
         self.open_date = open_date
+        self.position_status = position_status
+
+    def to_dict(self):
+        """
+        Converts current options position to a dictionary format so that it can be saved to JSON format
+        """
+        return {
+            "ticker": self.ticker,
+            "contract_type": self.contract_type,
+            "quantity": self.quantity,
+            "strike_price": self.strike_price,
+            "expiration_date": self.expiration_date,
+            "premium": self.premium,
+            "open_price": self.open_price,
+            "open_date": self.open_date,
+            "position_status": self.position_status
+        }
 
     def __validate_date_format(self, date_str: str):
         """
@@ -87,5 +103,11 @@ class OptionsPosition:
         """
         Returns whether the contract is expired.
         """
-        current_date = datetime.now().date()
-        return current_date > datetime.strptime(self.expiration_date, '%Y-%m-%d')
+        is_expired = datetime.now().date() > datetime.strptime(self.expiration_date, '%Y-%m-%d')
+        if (is_expired):
+            print("Implement getting the price here and then setting the option to either ITM or OTM")
+        return is_expired
+    
+    def calculate_profit(self) -> float:
+        raise NotImplementedError("TODO: Implement this method")
+        

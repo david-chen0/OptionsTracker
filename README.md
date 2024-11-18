@@ -11,8 +11,13 @@ UI/webpage should be handled using JavaScript with a framework like React or Vue
 
 
 Specific implementation ideas:
-On startup, parse all the data stored locally. Then, for all the options that have not been closed yet, go from closest to expiry to furthest to expiry date.
-If any of the contracts have already expired, update them dynamically by fetching the underlying stock's price and then determining whether they were ITM or OTM.
+THERE WILL BE TWO JSON FILES FOR STORING LOCAL DATA. JSON files will be list of dicts. The files will be for active contracts(active_contracts.json) and inactive contracts(inactive_contracts.json).
+These files will be sorted by expiry data with the earliest expiry date being at the front and the latest expiry date being at the end.
+
+On startup, first parse inactive_contracts and store them locally. The JSON object should still be kept so that we can easily make changes.
+
+Next, look through active_contracts. For all the inactive contracts(do a current date check) in active_contracts, check the underlying asset's price and update the contract to be either OTM or ITM.
+Then, delete this from active_contracts and then add this to inactive_contracts. Then just parse the rest of the active contracts as normal
 
 APIs:
 addContract: Adds an option contract in
@@ -20,16 +25,17 @@ closeContract: Closes a currently open option contract
 getContract: Gets an option contract corresponding to the contractId we've assigned it
 deleteContract: Deletes a contract. This is different from closeContract, as we want to get rid of all records corresponding to this contract.
 
-OptionsPosition class:
-positionId: This will be a unique increasing number(starting from 1) which maps to a contract
-ticker
-contractType: Put or call
-quantity: The number of contracts opened. Positive = long, negative = short
-strikePrice
-expiryDate
-premium: The price of the contract per underlying asset
-openPrice: The price of the underlying asset when we opened this contract
-openDate: The date when we opened this contract
-profit: The total profit generated from these contracts. This takes into account opportunity cost too. For instance, for covered calls,
-if strike was at 95, price was 1 per asset, and closeprice was 100, then profit is 95+1-100=-4.
+
+Files and folders inside src/:
+main.py: This will be where the main logic is implemented
+data folder: This folder will contain all the logic for editing and accessing the locally stored data, along with where the locally stored data will be located
+util folder: This will be for util methods and classes
+web folder: This will be for all the web stuff(flask routes and endpoints, html templates, static files for things like css, JS, and images). this could look like web/, where
+inside there is routes.py for flask routes and endpoints, templates/ for html templates, and static/ for the static files
+
+
+TODOs that won't be implemented yet but should be done:
+Explore all the possibilities that yf offers and try to see what can be improved using that. For example, yf offers something to display the next upcoming earnings date
+
+The JSON local stores should be done async. This means that when we receive a request to edit a contract(let's say we close it before expiry), we'll first process that request and show them the results of our updated memory(ex: if we use a dict or something like that), and then we run a thread or something async to update our locally stored json
 
