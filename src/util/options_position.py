@@ -14,8 +14,8 @@ class PositionStatus(Enum):
     """
     OPEN = "open"
     CLOSED = "closed"
-    OTM = "otm"
-    ITM = "itm"
+    EXPIRED = "expired"
+    ASSIGNED = "assigned"
 
 class OptionsPosition:
     """
@@ -108,6 +108,28 @@ class OptionsPosition:
             print("Implement getting the price here and then setting the option to either ITM or OTM")
         return is_expired
     
+    def update_expiry_status(self, underlying_expiration_price: float):
+        """
+        Updates the contract status for a newly expired contract given the price of the underlying asset at expiry
+        """
+        if (self.contract_type == ContractType.CALL and underlying_expiration_price > self.strike_price) or \
+            (self.contract_type == ContractType.PUT and underlying_expiration_price < self.strike_price):
+            self.position_status = PositionStatus.ASSIGNED
+        else:
+            self.position_status = PositionStatus.EXPIRED
+    
     def calculate_profit(self) -> float:
         raise NotImplementedError("TODO: Implement this method")
         
+def get_options_position(inputs: dict) -> OptionsPosition:
+    return OptionsPosition(
+        inputs["ticker"],
+        ContractType[inputs["contract_type"]],
+        inputs["quantity"],
+        inputs["strike_price"],
+        inputs["expiration_date"],
+        inputs["premium"],
+        inputs["open_price"],
+        inputs["open_date"],
+        PositionStatus[inputs["position_status"]]
+    )

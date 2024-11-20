@@ -17,7 +17,9 @@ These files will be sorted by expiry data with the earliest expiry date being at
 On startup, first parse inactive_contracts and store them locally. The JSON object should still be kept so that we can easily make changes.
 
 Next, look through active_contracts. For all the inactive contracts(do a current date check) in active_contracts, check the underlying asset's price and update the contract to be either OTM or ITM.
-Then, delete this from active_contracts and then add this to inactive_contracts. Then just parse the rest of the active contracts as normal
+Then, delete this from active_contracts and then add this to inactive_contracts. Then add them to a list, which we will display under "newly expired contracts" section
+
+Finally, just parse the rest of the active contracts as normal
 
 APIs:
 addContract: Adds an option contract in
