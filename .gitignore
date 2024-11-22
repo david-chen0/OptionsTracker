@@ -1,3 +1,5 @@
 venv/
 .vs/
 *__pycache__*
+src/data/stored_data/*
+test/data/stored_data/*

@@ -1,4 +1,5 @@
 import bisect
+from datetime import datetime, timedelta
 from .options_position import *
 
 def get_sort_key():
@@ -31,3 +32,16 @@ def compare_options_position_dict_and_object(options_position_dict: dict, option
             return False
         
     return True
+
+def get_next_day(day: str) -> str:
+    """
+    Returns the next day in YYYY-MM-DD format. Input date must also be in that format
+    """
+    # Convert the input string to a datetime object
+    input_date = datetime.strptime(day, '%Y-%m-%d')
+
+    # Calculate the day after
+    next_day = input_date + timedelta(days=1)
+
+    # Format the day after as YYYY-MM-DD
+    return next_day.strftime('%Y-%m-%d')
