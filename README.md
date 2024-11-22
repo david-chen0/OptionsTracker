@@ -1,3 +1,13 @@
+Dependencies used:
+Python/pip
+yfinance
+Flask
+pandas
+numpy
+aiofiles
+pytest
+pytest-asynchio
+
 The purpose of this project is meant to track all my options(past, current, and planned). Also want to get this hooked up with my broker and get a UI/webpage for this
 
 General plans:

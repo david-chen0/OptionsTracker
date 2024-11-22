@@ -4,13 +4,14 @@ import os
 import sys
 from data.data_fetcher import *
 from data.data_storage import *
+from util.common import *
 from util.options_position import *
 
 # Constants
 DATA_FOLDER_LOCATION = os.path.dirname(__file__) + "/data/stored_data/"
 ACTIVE_CONTRACTS_FILE_PATH = DATA_FOLDER_LOCATION + "active_contracts.json"
 INACTIVE_CONTRACTS_FILE_PATH = DATA_FOLDER_LOCATION + "inactive_contracts.json"
-sort_key = lambda x: x.expiration_date
+sort_key = get_sort_key()
 
 # These will be the json's corresponding to the files
 active_contracts_json: list
@@ -28,9 +29,10 @@ async def process_newly_expired_contracts(newly_expired_contracts: list):
     if not len(newly_expired_contracts):
         return
     
+    global active_contracts_json
     for newly_expired_contract in newly_expired_contracts:
         # Add the newly expired contracts to inactive_contracts_json in the correct order
-        process_newly_expired_contracts_helper(newly_expired_contract)
+        await add_position_to_json_list(newly_expired_contract, inactive_contracts_json)
         
         # Remove the first active contract. We know this one corresponds to the newly expired contract because
         # the json lists are sorted in order by expiration date
@@ -39,18 +41,16 @@ async def process_newly_expired_contracts(newly_expired_contracts: list):
     await save_data_to_json(INACTIVE_CONTRACTS_FILE_PATH, inactive_contracts_json)
     await save_data_to_json(ACTIVE_CONTRACTS_FILE_PATH, active_contracts_json)
 
-def process_newly_expired_contracts_helper(expired_contract: OptionsPosition):
-    """
-    Helper used to typecast the expired contract so that we can call it's to_dict method
-    """
-    bisect.insort(inactive_contracts_json, expired_contract.to_dict(), key=sort_key)
-
-
 async def main():
     """
     Main function to run the Options Tracker app
     """
     print("Starting program")
+    global active_contracts_json
+    global inactive_contracts_json
+    global active_contracts
+    global inactive_contracts
+
     # Fetching inactive and active contracts
     inactive_contracts_json_task = asyncio.create_task(load_data_from_json(INACTIVE_CONTRACTS_FILE_PATH))
     active_contracts_json_task = asyncio.create_task(load_data_from_json(ACTIVE_CONTRACTS_FILE_PATH))
@@ -85,7 +85,31 @@ async def main():
 
     # this must be called before we can do any operations on the json lists
     # await process_newly_expired_contracts_task
-    print("done")
+
+    # # the code below is just to test
+    # print("Please enter the details for the new position:")
+    
+    # # Collecting user inputs
+    # contract_type = input("Contract Type (Call/Put): ").strip().capitalize()
+    # contract_status = input("Contract Status (Open/Closed): ").strip().capitalize()
+
+    # test_position = OptionsPosition(
+    #     "NVDA",
+    #     ContractType[contract_type.upper()],
+    #     2,
+    #     100,
+    #     "2024-11-01",
+    #     10,
+    #     100,
+    #     "2024-10-18",
+    #     PositionStatus[contract_status.upper()]
+    # )
+    # await add_contract_to_json_list(test_position, active_contracts_json)
+    # await save_data_to_json(INACTIVE_CONTRACTS_FILE_PATH, inactive_contracts_json)
+    # print(active_contracts_json)
+    # await save_data_to_json(ACTIVE_CONTRACTS_FILE_PATH, active_contracts_json)
+    
+    # print("done")
 
 if __name__ == "__main__":
     asyncio.run(main())

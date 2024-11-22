@@ -15,7 +15,7 @@ class PositionStatus(Enum):
     OPEN = "open"
     CLOSED = "closed"
     EXPIRED = "expired"
-    ASSIGNED = "assigned"
+    EXERCISED = "exercised"
 
 class OptionsPosition:
     """
@@ -64,7 +64,7 @@ class OptionsPosition:
         self.__validate_date_format(expiration_date)
         self.__validate_date_format(open_date)
 
-        self.ticker = ticker
+        self.ticker = ticker.upper()
         self.contract_type = contract_type
         self.quantity = quantity
         self.strike_price = strike_price
@@ -80,14 +80,14 @@ class OptionsPosition:
         """
         return {
             "ticker": self.ticker,
-            "contract_type": self.contract_type,
+            "contract_type": self.contract_type.value,
             "quantity": self.quantity,
             "strike_price": self.strike_price,
             "expiration_date": self.expiration_date,
             "premium": self.premium,
             "open_price": self.open_price,
             "open_date": self.open_date,
-            "position_status": self.position_status
+            "position_status": self.position_status.value
         }
 
     def __validate_date_format(self, date_str: str):
@@ -114,7 +114,7 @@ class OptionsPosition:
         """
         if (self.contract_type == ContractType.CALL and underlying_expiration_price > self.strike_price) or \
             (self.contract_type == ContractType.PUT and underlying_expiration_price < self.strike_price):
-            self.position_status = PositionStatus.ASSIGNED
+            self.position_status = PositionStatus.EXERCISED
         else:
             self.position_status = PositionStatus.EXPIRED
     
@@ -124,12 +124,12 @@ class OptionsPosition:
 def get_options_position(inputs: dict) -> OptionsPosition:
     return OptionsPosition(
         inputs["ticker"],
-        ContractType[inputs["contract_type"]],
+        ContractType[inputs["contract_type"].lower()],
         inputs["quantity"],
         inputs["strike_price"],
         inputs["expiration_date"],
         inputs["premium"],
         inputs["open_price"],
         inputs["open_date"],
-        PositionStatus[inputs["position_status"]]
+        PositionStatus[inputs["position_status"].lower()]
     )

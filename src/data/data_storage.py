@@ -28,8 +28,16 @@ async def load_data_from_json(file_path: str) -> list:
     Since our JSON is a list of dict's, the return value will be a list.
     """
     if not os.path.exists(file_path):
-        raise FileNotFoundError(f"File path {file_path} does not exist")
+        # Decide on functionality, whether we will raise an error or automatically create a file
+        # raise FileNotFoundError(f"File path {file_path} does not exist")
+
+        print(f"File path {file_path} does not exist, returning empty list instead")
+        return []
     
     async with aiofiles.open(file_path, 'r') as f:
         content = await f.read()
+
+        # Return an empty list if the JSON is empty
+        if not content:
+            return []
         return json.loads(content)
