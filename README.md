@@ -8,16 +8,33 @@ aiofiles
 pytest
 pytest-asynchio
 
-The purpose of this project is meant to track all my options(past, current, and planned). Also want to get this hooked up with my broker and get a UI/webpage for this
-
-General plans:
-Will be using Python for the backend logic and JavaScript for the webpage stuff
-
-Use Python yfinance library to query data from Yahoo finance
-
-Store the data on options I've held and are holding locally using CSVs, JSON, SQLite, or something else. pandas is good for this
-
-UI/webpage should be handled using JavaScript with a framework like React or Vue.js. Python can act as the backend server using Flask or FastAPI
+Change the project to fit this structure:
+OptionsTracker/
+├── backend/                  # Flask backend files (Python)
+│   ├── src/                  # Your Flask app folder
+│   │   ├── routes.py         # API routes for the Flask app
+│   │   ├── models.py         # Database models and backend logic
+│   │   └── service_logic     # Folders and files for service logic
+│   ├── test/                 # Tests for backend code
+│   │   ├── test_routes.py    # Tests for the Flask routes
+│   │   ├── test_services.py  # Tests for the backend services
+│   │   └── test_models.py    # Tests for backend models
+│   ├── requirements.txt      # List of backend dependencies
+│   └── config.py             # Configuration settings for Flask
+├── frontend/                 # React frontend files
+│   ├── public/               # Public static files (e.g., index.html, images)
+│   ├── src/                  # React app source code
+│   │   ├── components/       # Reusable React components
+│   │   ├── pages/            # React pages (views)
+│   │   ├── services/         # API calls to Flask backend
+│   │   ├── App.js            # Main React app component
+│   │   └── index.js          # React entry point
+│   ├── package.json          # Frontend dependencies and scripts
+│   └── .env                  # Frontend environment variables
+├── data/                     # Local data files (e.g., JSON files, CSVs)
+├── .gitignore                # Ignore unnecessary files in Git
+├── README.md                 # Project overview and setup instructions
+└── run.py                    # Script to run the Flask backend
 
 
 Specific implementation ideas:

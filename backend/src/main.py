@@ -1,14 +1,13 @@
 import asyncio
 import bisect
 import os
-import sys
 from data.data_fetcher import *
 from data.data_storage import *
 from util.common import *
 from util.options_position import *
 
 # Constants
-DATA_FOLDER_LOCATION = os.path.dirname(__file__) + "/data/stored_data/"
+DATA_FOLDER_LOCATION = os.path.dirname(__file__) + "../../data/"
 ACTIVE_CONTRACTS_FILE_PATH = DATA_FOLDER_LOCATION + "active_contracts.json"
 INACTIVE_CONTRACTS_FILE_PATH = DATA_FOLDER_LOCATION + "inactive_contracts.json"
 sort_key = get_sort_key()

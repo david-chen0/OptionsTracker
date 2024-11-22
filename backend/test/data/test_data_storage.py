@@ -8,7 +8,7 @@ from data.data_storage import *
 from util.common import *
 from util.options_position import *
 
-DATA_FOLDER_LOCATION = os.path.dirname(__file__) + "/stored_data/"
+DATA_FOLDER_LOCATION = os.path.dirname(__file__) + "../../../../data/"
 ACTIVE_CONTRACTS_FILE_PATH = DATA_FOLDER_LOCATION + "active_contracts.json"
 INACTIVE_CONTRACTS_FILE_PATH = DATA_FOLDER_LOCATION + "inactive_contracts.json"
 
@@ -43,5 +43,3 @@ async def test_saving_and_loading_json():
     assert len(updated_inactive_contracts_json) == 1
     retrieved_position = updated_inactive_contracts_json[0]
     assert compare_options_position_dict_and_object(retrieved_position, expired_test_position)
-    # for field, value in vars(expired_test_position).items():
-    #     assert value == retrieved_position[field]
