@@ -1,9 +1,14 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
+from src.api.options_positions import options_positions_api
 
-app = Flask(__name__)
-CORS(app)
+def create_app():
+    app = Flask(__name__)
+    
+    # Enable CORS for the entire app
+    CORS(app)
 
-@app.route('/api/test', methods=['GET'])
-def test():
-    return jsonify({'message': 'Backend is working!'})
+    # Register Blueprints
+    app.register_blueprint(options_positions_api)
+
+    return app
