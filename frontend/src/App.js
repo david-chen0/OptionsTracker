@@ -31,7 +31,7 @@ function App() {
     useEffect(() => {
         async function loadPositions() {
             try {
-                const data = await fetchOptionsPositions();
+                const data = await fetchOptionsPositions(true);
                 setPositions(data);
             } catch (error) {
                 console.error("Error fetching positions:", error);
@@ -67,7 +67,16 @@ function App() {
 
             await addOptionsPosition(newPosition);
             // Temp to add to list of positions, delete this once we have the backend completely figured out
-            setPositions((prev) => [...prev, newPosition]);
+            // TODO: Change this to show the updated list rather than just displaying exactly what we added
+            // start with just showing actives, then we can display inactives later
+            // setPositions((prev) => [...prev, newPosition]);
+
+            // Fetch the updated list of positions from the backend
+            // currently only using the active list, will change to include inactive list too later
+            const updatedActivePositions = await fetchOptionsPositions(true);
+
+            // Setting the updated positions
+            setPositions(updatedActivePositions);
 
             // Resetting the form to be the default form
             // TODO: Change this to not happen on errors
@@ -119,6 +128,7 @@ function App() {
                     placeholder="Ticker"
                     value={formData.ticker}
                     onChange={handleInputChange}
+                    required
                 />
                 <select
                     name="contract_type"
@@ -136,6 +146,7 @@ function App() {
                     placeholder="Quantity"
                     value={formData.quantity}
                     onChange={handleInputChange}
+                    required
                 />
                 <input
                     type="number"
@@ -143,13 +154,16 @@ function App() {
                     placeholder="Strike Price"
                     value={formData.strike_price}
                     onChange={handleInputChange}
+                    required
+                    step=".01" // TODO: This doesn't work right yet, fix this later
                 />
                 <input
                     type="date"
                     name="expiration_date"
                     placeholder="Expiration Date"
-                    value={formData.expirationDate}
+                    value={formData.expiration_date}
                     onChange={handleInputChange}
+                    required
                 />
                 <input
                     type="number"
@@ -157,6 +171,8 @@ function App() {
                     placeholder="Premium"
                     value={formData.premium}
                     onChange={handleInputChange}
+                    required
+                    step=".01"
                 />
                 <input
                     type="number"
@@ -164,6 +180,8 @@ function App() {
                     placeholder="Open Price"
                     value={formData.open_price}
                     onChange={handleInputChange}
+                    required
+                    step=".01"
                 />
                 <input
                     type="date"
@@ -171,6 +189,7 @@ function App() {
                     placeholder="Open Date"
                     value={formData.open_date}
                     onChange={handleInputChange}
+                    required
                 />
                 {/* Add additional inputs for other fields if needed */}
                 <button onClick={handleAddPosition}>Add Position</button>

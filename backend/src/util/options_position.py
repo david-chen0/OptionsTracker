@@ -31,6 +31,7 @@ class OptionsPosition:
         open_price (float): The price of the underlying security when the contract was opened
         open_date (str): The date that the contract was opened, represented as YYYY-MM-DD
         contract_status (PositionStatus): The status of the options position
+        close_price (float): The price of the underlying security when the contract closed, set to -1 when the contract is still open
     """
 
     ticker: str
@@ -42,6 +43,7 @@ class OptionsPosition:
     open_price: float
     open_date: str
     position_status: PositionStatus
+    close_price: float
 
     # Unimplemented for now, uncomment when you come around to implementing this
     # ex: sold call on X, strike price 95, premium 1, expired at 100. profit = 1 + 95 - 100 = -4
@@ -58,7 +60,8 @@ class OptionsPosition:
         premium: float,
         open_price: float,
         open_date: str,
-        position_status: PositionStatus
+        position_status: PositionStatus = PositionStatus.OPEN,
+        close_price: float = -1
     ):
         # Validating that expiration date and open date fit the YYYY-MM-DD format
         self.__validate_date_format(expiration_date)
@@ -73,6 +76,7 @@ class OptionsPosition:
         self.open_price = open_price
         self.open_date = open_date
         self.position_status = position_status
+        self.close_price = close_price
 
     def to_dict(self):
         """
@@ -87,7 +91,8 @@ class OptionsPosition:
             "premium": self.premium,
             "open_price": self.open_price,
             "open_date": self.open_date,
-            "position_status": self.position_status.value
+            "position_status": self.position_status.value,
+            "close_price": self.close_price.value
         }
 
     def __validate_date_format(self, date_str: str):
@@ -103,20 +108,21 @@ class OptionsPosition:
         """
         Returns whether the contract is expired.
         """
-        is_expired = datetime.now().date() > datetime.strptime(self.expiration_date, '%Y-%m-%d')
+        is_expired = datetime.now().date() > datetime.strptime(self.expiration_date, '%Y-%m-%d').date()
         if (is_expired):
             print("Implement getting the price here and then setting the option to either ITM or OTM")
         return is_expired
     
-    def update_expiry_status(self, underlying_expiration_price: float):
+    def updated_position_at_maturity(self, underlying_expiration_price: float):
         """
-        Updates the contract status for a newly expired contract given the price of the underlying asset at expiry
+        Updates the newly expired position given the price of the underlying asset at expiry
         """
         if (self.contract_type == ContractType.CALL and underlying_expiration_price > self.strike_price) or \
             (self.contract_type == ContractType.PUT and underlying_expiration_price < self.strike_price):
             self.position_status = PositionStatus.EXERCISED
         else:
             self.position_status = PositionStatus.EXPIRED
+        self.close_price = underlying_expiration_price
     
     def calculate_profit(self) -> float:
         raise NotImplementedError("TODO: Implement this method")
@@ -131,5 +137,6 @@ def get_options_position(inputs: dict) -> OptionsPosition:
         inputs["premium"],
         inputs["open_price"],
         inputs["open_date"],
-        PositionStatus[inputs["position_status"].lower()]
+        PositionStatus[inputs["position_status"].lower()],
+        inputs["close_price"]
     )

@@ -9,7 +9,7 @@ from util.common import *
 # Tomorrow's date formatted as YYYY-MM-DD
 tomorrow_date = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
 
-async def get_security_closing_price(ticker: str, date: str) -> float:
+def get_security_closing_price(ticker: str, date: str) -> float:
     """
     Returns the closing price for the input ticker and date.
 

@@ -68,7 +68,7 @@ async def main():
         if options_position.is_expired:
             # Updating the status of the newly expired contract
             underlying_price = get_security_closing_price(options_position.ticker, options_position.expiration_date)
-            options_position.update_expiry_status(underlying_price)
+            options_position.updated_position_at_maturity(underlying_price)
 
             # Adding it to the inactive contracs while maintaining the list order
             bisect.insort(inactive_contracts, options_position, key=sort_key)

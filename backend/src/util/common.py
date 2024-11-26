@@ -7,13 +7,13 @@ def get_sort_key():
     Provides the sort key we use for our JSONs. Purpose of method is so that the sort key will be consistent
     across all files and changes only need to be made here
     """
-    return lambda x: x["expiration_date"]
+    return lambda x: getattr(x, "expiration_date")
 
-async def add_position_to_json_list(position: OptionsPosition, contracts_json: list):
+def add_position_to_positions_list(position: OptionsPosition, positions_list: list):
     """
-    Adds the position to the input JSON list using the sort key
+    Adds the position to the input OptionsPosition list using the sort key
     """
-    bisect.insort(contracts_json, position.to_dict(), key=get_sort_key())
+    bisect.insort(positions_list, position, key=get_sort_key())
 
 def compare_options_position_dict_and_object(options_position_dict: dict, options_position: OptionsPosition) -> bool:
     """

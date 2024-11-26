@@ -35,7 +35,7 @@ OptionsTracker/
 │   │   └── index.js          # React entry point
 │   ├── package.json          # Frontend dependencies and scripts
 │   └── .env                  # Frontend environment variables
-├── data/                     # Local data files (e.g., JSON files, CSVs)
+├── data/                     # Local data files (e.g. JSON files, CSVs)
 ├── .gitignore                # Ignore unnecessary files in Git
 ├── README.md                 # Project overview and setup instructions
 
@@ -43,7 +43,7 @@ OptionsTracker/
 To start webpage/server(for now):
 On one terminal, do python backend/run.py
 On another, cd into frontend then do npm start
-Webpage will be at http://localhost:3000/
+Webpage will be at http://localhost:3000/, running npm start should autostart it though
 
 
 AFTER BUSINESS LOGIC IS MORE COMPLETE, UPDATE THIS
@@ -54,9 +54,11 @@ These files will be sorted by expiry data with the earliest expiry date being at
 On startup, first parse inactive_contracts and store them locally. The JSON object should still be kept so that we can easily make changes.
 
 Next, look through active_contracts. For all the inactive contracts(do a current date check) in active_contracts, check the underlying asset's price and update the contract to be either OTM or ITM.
-Then, delete this from active_contracts and then add this to inactive_contracts. Then add them to a list, which we will display under "newly expired contracts" section
+Then, delete this from active_contracts and then add this to inactive_contracts.
 
-Finally, just parse the rest of the active contracts as normal
+Finally, just parse the rest of the active contracts as normal.
+
+On the webpage, we will have an "active option positions" section and an "inactive option positions" section
 
 APIs:
 addContract: Adds an option contract in
@@ -64,6 +66,29 @@ closeContract: Closes a currently open option contract
 getContract: Gets an option contract corresponding to the contractId we've assigned it
 deleteContract: Deletes a contract. This is different from closeContract, as we want to get rid of all records corresponding to this contract.
 
+Table schema:
+ticker (str): The ticker symbol(ex: AAPL) for the underlying security
+contract_type (ContractType): The type of contract
+quantity (int): The number of contracts opened
+strike_price (float): The strike price of the contracts
+expiration_date (str): The expiration date of the contracts, represented as YYYY-MM-DD
+premium (float): The premium per security for each of the contracts
+open_price (float): The price of the underlying security when the contract was opened
+open_date (str): The date that the contract was opened, represented as YYYY-MM-DD
+contract_status (PositionStatus): The status of the options position. NOT SETTABLE BY USER, THIS WILL DEFAULT TO OPEN AND WILL BE HANDLED IN THE BACKEND
+
+Possible table addons:
+current_price (float): The current price of a contract. Float for open contracts, 0.0 for closed contracts
+
+
+
 TODOs:
+Make website pretty and not an eyesore
+
+Add a "newly expired" section for contracts that expired since last time you opened app and also signs for "about to expire", etc
+
 Explore all the possibilities that yf offers and try to see what can be improved using that. For example, yf offers something to display the next upcoming earnings date
 
+Find a way to store the data online and with better functionality(ex: indexes, replicas, snapshots, etc) so that it can be easily used for all
+
+Hook this up with brokers(this is a very long term goal, very difficult esp when considering security concerns)
