@@ -70,7 +70,7 @@ def initialize_options_positions():
         if options_position.is_expired():
             # Updating the status of the newly expired contract
             underlying_price = get_security_closing_price(options_position.ticker, options_position.expiration_date)
-            options_position.updated_position_at_maturity(underlying_price)
+            options_position.update_position_at_maturity(underlying_price)
 
             # Adding it to the inactive contracs while maintaining the list order
             add_position_to_positions_list(options_position, inactive_positions_store)
@@ -93,7 +93,15 @@ def get_active_positions():
     # return jsonify(active_positions_store), 200
     # TODO: This is pretty inefficient, think of a better way to do this
     # Probably just re-add that global list to represent the JSON object, might need a diff design with async
-    return jsonify([position.__dict__ for position in active_positions_store]), 200
+
+    return jsonify([position.to_dict() for position in active_positions_store]), 200
+    # result = []
+    # for position in active_positions_store:
+    #     position_dict = position.__dict__
+    #     position_dict["contract_type"] = position_dict["contract_type"].value
+    #     position_dict["position_status"] = position_dict["position_status"].value
+    #     result.append(position_dict)
+    # return jsonify(result), 200
 
 # Gets the inactive options positions
 @options_positions_api.route('/api/options_positions/inactive', methods=['GET'])
@@ -101,7 +109,16 @@ def get_inactive_positions():
     # return jsonify(inactive_positions_store), 200
     # TODO: This is pretty inefficient, think of a better way to do this
     # Probably just re-add that global list to represent the JSON object, might need a diff design with async
-    return jsonify([position.__dict__ for position in inactive_positions_store]), 200
+    for position in inactive_positions_store:
+        print(position.__dict__)
+    return jsonify([position.to_dict() for position in inactive_positions_store]), 200
+    # result = []
+    # for position in inactive_positions_store:
+    #     position_dict = position.__dict__
+    #     position_dict["contract_type"] = position_dict["contract_type"].value
+    #     position_dict["position_status"] = position_dict["position_status"].value
+    #     result.append(position_dict)
+    # return jsonify(result), 200
 
 
 # POST methods
@@ -113,17 +130,14 @@ def add_position():
         return jsonify({'error': 'Invalid data'}), 400
     
     # Create a new OptionsPositions instance
-    new_position = OptionsPosition(**data)
+    new_position = get_options_position(data)
 
     # Checks if the position is expired
     if new_position.is_expired():
         # If expired, update the status and then add it to the inactive positions store
-        print("delete this statement afterwards, just testing if it's seeing the expired correctly")
         underlying_price = get_security_closing_price(new_position.ticker, new_position.expiration_date)
-        new_position.updated_position_at_maturity(underlying_price)
-        print(new_position.__dict__)
+        new_position.update_position_at_maturity(underlying_price)
         add_position_to_positions_list(new_position, inactive_positions_store)
-        print("got to the end")
     else:
         add_position_to_positions_list(new_position, active_positions_store)
         

@@ -63,9 +63,13 @@ class OptionsPosition:
         position_status: PositionStatus = PositionStatus.OPEN,
         close_price: float = -1
     ):
-        # Validating that expiration date and open date fit the YYYY-MM-DD format
+        # Validates that expiration date and open date fit the YYYY-MM-DD format
         self.__validate_date_format(expiration_date)
         self.__validate_date_format(open_date)
+
+        # check open date before expiratoin date
+        
+        # check positive premium
 
         self.ticker = ticker.upper()
         self.contract_type = contract_type
@@ -84,15 +88,15 @@ class OptionsPosition:
         """
         return {
             "ticker": self.ticker,
-            "contract_type": self.contract_type.value,
+            "contract_type": self.contract_type.name,
             "quantity": self.quantity,
             "strike_price": self.strike_price,
             "expiration_date": self.expiration_date,
             "premium": self.premium,
             "open_price": self.open_price,
             "open_date": self.open_date,
-            "position_status": self.position_status.value,
-            "close_price": self.close_price.value
+            "position_status": self.position_status.name,
+            "close_price": self.close_price
         }
 
     def __validate_date_format(self, date_str: str):
@@ -109,14 +113,13 @@ class OptionsPosition:
         Returns whether the contract is expired.
         """
         is_expired = datetime.now().date() > datetime.strptime(self.expiration_date, '%Y-%m-%d').date()
-        if (is_expired):
-            print("Implement getting the price here and then setting the option to either ITM or OTM")
         return is_expired
     
-    def updated_position_at_maturity(self, underlying_expiration_price: float):
+    def update_position_at_maturity(self, underlying_expiration_price: float):
         """
         Updates the newly expired position given the price of the underlying asset at expiry
         """
+        underlying_expiration_price = float(underlying_expiration_price) # Prevents numpy floats from being used
         if (self.contract_type == ContractType.CALL and underlying_expiration_price > self.strike_price) or \
             (self.contract_type == ContractType.PUT and underlying_expiration_price < self.strike_price):
             self.position_status = PositionStatus.EXERCISED
@@ -128,15 +131,46 @@ class OptionsPosition:
         raise NotImplementedError("TODO: Implement this method")
         
 def get_options_position(inputs: dict) -> OptionsPosition:
+    """
+    Creates and returns an option position using the input dictionary.
+
+    This should be used over OptionsPosition(**inputs) because the constructor has some special checks.
+    """
+    # String checks are because conversions from JavaScript causes many variables to be stored as strings
+    contract_type = inputs["contract_type"].upper()
+    quantity = inputs["quantity"]
+    strike_price = inputs["strike_price"]
+    position_status = inputs["position_status"].upper()
+    open_price = inputs["open_price"]
+    close_price = inputs["close_price"]
+
+    if isinstance(contract_type, str):
+        contract_type = ContractType[contract_type]
+
+    if isinstance(quantity, str):
+        quantity = float(quantity)
+
+    if isinstance(strike_price, str):
+        strike_price = float(strike_price)
+        
+    if isinstance(position_status, str):
+        position_status = PositionStatus[position_status]
+
+    if isinstance(open_price, str):
+        open_price = float(open_price)
+
+    if isinstance(close_price, str):
+        close_price = float(close_price)
+
     return OptionsPosition(
         inputs["ticker"],
-        ContractType[inputs["contract_type"].lower()],
-        inputs["quantity"],
-        inputs["strike_price"],
+        contract_type,
+        quantity,
+        strike_price,
         inputs["expiration_date"],
         inputs["premium"],
-        inputs["open_price"],
+        open_price,
         inputs["open_date"],
-        PositionStatus[inputs["position_status"].lower()],
-        inputs["close_price"]
+        position_status,
+        close_price
     )

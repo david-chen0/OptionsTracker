@@ -25,14 +25,25 @@ function App() {
         "open_date"
     ];
 
-    const [positions, setPositions] = useState([]);
+    // List corresponding to active positions
+    const [activePositions, setActivePositions] = useState([]);
+
+    // List corresponding to inactive positions
+    const [inactivePositions, setInactivePositions] = useState([]);
+
+    // Form for the user to input their addPosition data
     const [formData, setFormData] = useState(defaultForm);
 
     useEffect(() => {
         async function loadPositions() {
             try {
-                const data = await fetchOptionsPositions(true);
-                setPositions(data);
+                // Fetching and setting active data
+                const activeData = await fetchOptionsPositions(true);
+                setActivePositions(activeData);
+                
+                // Fetching and setting inactive data
+                const inactiveData = await fetchOptionsPositions(false);
+                setInactivePositions(inactiveData);
             } catch (error) {
                 console.error("Error fetching positions:", error);
             }
@@ -61,64 +72,80 @@ function App() {
                 return;
             }
 
-            newPosition["position_status"] = "Open"
+            // Default values since we don't allow user input for these fields
+            newPosition["position_status"] = "Open";
+            newPosition["close_price"] = -1;
 
             // TODO: Add verifications on the fields, ex: expiration date is a date, strike price is a number with at most 2 decimals, and more
-
+            // verification should be done in backend rather than frontend
             await addOptionsPosition(newPosition);
-            // Temp to add to list of positions, delete this once we have the backend completely figured out
-            // TODO: Change this to show the updated list rather than just displaying exactly what we added
-            // start with just showing actives, then we can display inactives later
-            // setPositions((prev) => [...prev, newPosition]);
 
-            // Fetch the updated list of positions from the backend
-            // currently only using the active list, will change to include inactive list too later
+            // TODO: Add a way to check if the newly added position is active or inactive, then just update that table instead of updating both
+
+            // Fetch the updated active positions list from the backend and set the table accordingly
             const updatedActivePositions = await fetchOptionsPositions(true);
+            setActivePositions(updatedActivePositions);
 
-            // Setting the updated positions
-            setPositions(updatedActivePositions);
+            // Fetch the updated inactive positions list from the backend and set the table accordingly
+            const updatedInactivePositions = await fetchOptionsPositions(false);
+            setInactivePositions(updatedInactivePositions);
 
             // Resetting the form to be the default form
-            // TODO: Change this to not happen on errors
             setFormData(defaultForm);
         } catch (error) {
             console.error("Error adding position:", error);
         }
     };
 
+    // Table to display the positions for both active and inactive positions.
+    // This is to enforce that the active and inactive positions tables are identical.
+    const PositionsTable = ({ positions, title }) => {
+        return (
+            <div>
+                <h1>{title}</h1>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ticker</th>
+                            <th>Type</th>
+                            <th>Quantity</th>
+                            <th>Strike Price</th>
+                            <th>Expiration Date</th>
+                            <th>Premium</th>
+                            <th>Open Price</th>
+                            <th>Open Date</th>
+                            <th>Position Status</th>
+                            <th>Close Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {positions.map((pos, idx) => (
+                            <tr key={idx}>
+                                <td>{pos.ticker}</td>
+                                <td>{pos.contract_type}</td>
+                                <td>{pos.quantity}</td>
+                                <td>{pos.strike_price}</td>
+                                <td>{pos.expiration_date}</td>
+                                <td>{pos.premium}</td>
+                                <td>{pos.open_price}</td>
+                                <td>{pos.open_date}</td>
+                                <td>{pos.position_status}</td>
+                                <td>{pos.close_price}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        )
+    }
+
     return (
         <div>
             <h1>Options Positions</h1>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Ticker</th>
-                        <th>Type</th>
-                        <th>Quantity</th>
-                        <th>Strike Price</th>
-                        <th>Expiration Date</th>
-                        <th>Premium</th>
-                        <th>Open Price</th>
-                        <th>Open Date</th>
-                        <th>Position Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {positions.map((pos, idx) => (
-                        <tr key={idx}>
-                            <td>{pos.ticker}</td>
-                            <td>{pos.contract_type}</td>
-                            <td>{pos.quantity}</td>
-                            <td>{pos.strike_price}</td>
-                            <td>{pos.expiration_date}</td>
-                            <td>{pos.premium}</td>
-                            <td>{pos.open_price}</td>
-                            <td>{pos.open_date}</td>
-                            <td>{pos.position_status}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <div>
+                <PositionsTable positions={activePositions} title="Active Positions" />
+                <PositionsTable positions={inactivePositions} title="Inactive Positions" />
+            </div>
 
             <h2>Add New Position</h2>
             <form onSubmit={(e) => e.preventDefault()}>
@@ -172,6 +199,7 @@ function App() {
                     value={formData.premium}
                     onChange={handleInputChange}
                     required
+                    min="0"
                     step=".01"
                 />
                 <input
