@@ -83,6 +83,15 @@ current_price (float): The current price of a contract. Float for open contracts
 
 
 TODOs:
+Reduce memory by keeping a JSON list at all time, which will be a list of dict's so that we won't have to always convert OptionsPositions to dicts.
+this means that for every change we'll also need to change that JSON list and the OptionsPosition list
+pros: less time used to convert optionspositions to dicts every time we add/change a contract
+cons: double memory usage for the positions
+workflows:
+loading from start(done): load to json object and then load from json object to optionspositions list
+adding contract(done): add to optionspositions list and then add to json object
+updating object from active to inactive: make changes to optionspositions lists(remove from active and add to inactive) then make the same changes to json list
+
 Make website pretty and not an eyesore
 
 Add a "newly expired" section for contracts that expired since last time you opened app and also signs for "about to expire", etc

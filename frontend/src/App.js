@@ -78,17 +78,18 @@ function App() {
 
             // TODO: Add verifications on the fields, ex: expiration date is a date, strike price is a number with at most 2 decimals, and more
             // verification should be done in backend rather than frontend
-            await addOptionsPosition(newPosition);
+            const addPositionResponse = await addOptionsPosition(newPosition);
 
-            // TODO: Add a way to check if the newly added position is active or inactive, then just update that table instead of updating both
-
-            // Fetch the updated active positions list from the backend and set the table accordingly
-            const updatedActivePositions = await fetchOptionsPositions(true);
-            setActivePositions(updatedActivePositions);
-
-            // Fetch the updated inactive positions list from the backend and set the table accordingly
-            const updatedInactivePositions = await fetchOptionsPositions(false);
-            setInactivePositions(updatedInactivePositions);
+            // Response from server on whether the newly added position is inactive
+            if (addPositionResponse["inactive"]) {
+                // Fetch the updated inactive positions list from the backend and set the table accordingly
+                const updatedInactivePositions = await fetchOptionsPositions(false);
+                setInactivePositions(updatedInactivePositions);
+            } else {
+                // Fetch the updated active positions list from the backend and set the table accordingly
+                const updatedActivePositions = await fetchOptionsPositions(true);
+                setActivePositions(updatedActivePositions);
+            }
 
             // Resetting the form to be the default form
             setFormData(defaultForm);
