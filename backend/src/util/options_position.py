@@ -128,7 +128,23 @@ class OptionsPosition:
         self.close_price = underlying_expiration_price
     
     def calculate_profit(self) -> float:
-        raise NotImplementedError("TODO: Implement this method")
+        """
+        Returns the total profit of the position.
+        """
+        if self.position_status == PositionStatus.OPEN:
+            raise NotImplementedError("Position value has not been implemented for open positions yet")
+        
+        price_diff = self.close_price - self.strike_price
+        profit_per_contract = -self.premium
+
+        if self.contract_type == ContractType.CALL:
+            profit_per_contract += max(price_diff, 0)
+        elif self.contract_type == ContractType.PUT:
+            profit_per_contract += max(-price_diff, 0)
+        else:
+            raise ValueError(f"Unsupported contract type: {self.contract_type}")
+        
+        return self.quantity * profit_per_contract
         
 def get_options_position(inputs: dict) -> OptionsPosition:
     """

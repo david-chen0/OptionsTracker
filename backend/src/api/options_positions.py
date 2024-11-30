@@ -55,7 +55,7 @@ def initialize_options_positions():
     inactive_positions_store = [get_options_position(input) for input in inactive_positions_json]
 
     # Loop through until we find the first open contract
-    # For each of the expired contracts, update them and add them to the inactive contracts and newly expired contracts list
+    # For each of the expired contracts, update them and add them to the inactive contracts OptionsPosition and JSON list
     active_positions_json = load_data_from_json(ACTIVE_CONTRACTS_FILE_PATH)
     active_positions_store = [get_options_position(input) for input in active_positions_json]
     numNewlyExpiredPositions = 0
@@ -71,8 +71,6 @@ def initialize_options_positions():
 
             # Incrementing the number of newly expired positions
             numNewlyExpiredPositions += 1
-        else:
-            active_positions_store.append(options_position)
 
     for __ in range(numNewlyExpiredPositions):
         active_positions_json.pop(0)
@@ -119,7 +117,7 @@ def add_position():
         # If expired, update the status and then add it to the inactive positions store
         underlying_price = get_security_closing_price(new_position.ticker, new_position.expiration_date)
         new_position.update_position_at_maturity(underlying_price)
-        
+
         add_position_to_positions_list(new_position, inactive_positions_store)
         add_position_to_json_list(new_position, inactive_positions_json)
         save_data_to_json(INACTIVE_CONTRACTS_FILE_PATH, inactive_positions_json)

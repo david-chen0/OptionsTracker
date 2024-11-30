@@ -185,6 +185,8 @@ function App() {
                     required
                     step=".01" // TODO: This doesn't work right yet, fix this later
                 />
+                {/* React syntax for adding a label */}
+                <label htmlFor="expiration_date">Expiration Date</label>
                 <input
                     type="date"
                     name="expiration_date"
@@ -212,6 +214,8 @@ function App() {
                     required
                     step=".01"
                 />
+                {/* React syntax for adding a label */}
+                <label htmlFor="open_date">Open Date</label>
                 <input
                     type="date"
                     name="open_date"
