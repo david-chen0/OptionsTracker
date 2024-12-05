@@ -102,9 +102,9 @@ function App() {
     // This is to enforce that the active and inactive positions tables are identical.
     const PositionsTable = ({ positions, title }) => {
         return (
-            <div>
-                <h1>{title}</h1>
-                <table>
+            <div className="container mt-5">
+                <h1 className="text-center">{title}</h1>
+                <table className="table table-striped table-bordered">
                     <thead>
                         <tr>
                             <th>Ticker</th>
@@ -142,90 +142,104 @@ function App() {
 
     return (
         <div>
-            <h1>Options Positions</h1>
+            <h1 className="text-center">Options Positions Tracker</h1>
             <div>
                 <PositionsTable positions={activePositions} title="Active Positions" />
                 <PositionsTable positions={inactivePositions} title="Inactive Positions" />
             </div>
 
-            <h2>Add New Position</h2>
-            <form onSubmit={(e) => e.preventDefault()}>
+            <h2 className="text-center">Add New Position</h2>
+            <form class="d-flex flex-wrap align-items-center gap-3" onSubmit={(e) => e.preventDefault()}>
+                <label for="ticker" class="form-label">Ticker</label>
                 <input
                     type="text"
+                    class="form-control"
                     name="ticker"
+                    id="ticker"
                     placeholder="Ticker"
                     value={formData.ticker}
                     onChange={handleInputChange}
                     required
                 />
-                <select
+                <label for="contract_type" class="form-label">Contract Type</label>
+                <select 
+                    class="form-select"
                     name="contract_type"
                     value={formData.contract_type}
                     onChange={handleInputChange}
                     required
                 >
-                    <option value="" disabled>Select Contract Type</option>
+                    <option value="" disabled>Choose Contract Type</option>
                     <option value="Call">Call</option>
                     <option value="Put">Put</option>
                 </select>
+                <label for="quantity" class="form-label">Quantity</label>
                 <input
                     type="number"
+                    class="form-control"
                     name="quantity"
+                    id="quantity"
                     placeholder="Quantity"
                     value={formData.quantity}
                     onChange={handleInputChange}
                     required
                 />
+                <label for="strike_price" class="form-label">Strike Price</label>
                 <input
                     type="number"
+                    class="form-control"
                     name="strike_price"
+                    id="strike_price"
                     placeholder="Strike Price"
                     value={formData.strike_price}
                     onChange={handleInputChange}
                     required
-                    step=".01" // TODO: This doesn't work right yet, fix this later
                 />
-                {/* React syntax for adding a label */}
-                <label htmlFor="expiration_date">Expiration Date</label>
+                <label for="expiration_date" class="form-label">Expiration Date</label>
                 <input
                     type="date"
+                    class="form-control"
                     name="expiration_date"
+                    id="expiration_date"
                     placeholder="Expiration Date"
                     value={formData.expiration_date}
                     onChange={handleInputChange}
                     required
                 />
+                <label for="premium" class="form-label">Premium</label>
                 <input
                     type="number"
+                    class="form-control"
                     name="premium"
+                    id="premium"
                     placeholder="Premium"
                     value={formData.premium}
                     onChange={handleInputChange}
                     required
-                    min="0"
-                    step=".01"
                 />
+                <label for="open_price" class="form-label">Open Price</label>
                 <input
                     type="number"
+                    class="form-control"
                     name="open_price"
+                    id="open_price"
                     placeholder="Open Price"
                     value={formData.open_price}
                     onChange={handleInputChange}
                     required
-                    step=".01"
                 />
-                {/* React syntax for adding a label */}
-                <label htmlFor="open_date">Open Date</label>
+                <label for="open_date" class="form-label">Open Date</label>
                 <input
                     type="date"
+                    class="form-control"
                     name="open_date"
+                    id="open_date"
                     placeholder="Open Date"
                     value={formData.open_date}
                     onChange={handleInputChange}
                     required
                 />
-                {/* Add additional inputs for other fields if needed */}
-                <button onClick={handleAddPosition}>Add Position</button>
+                <button class="btn btn-primary" onClick={handleAddPosition}>Add Position</button>
             </form>
         </div>
     );

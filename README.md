@@ -8,6 +8,7 @@ pytest
 pytest-asynchio
 React
 axios(npm)
+bootstrap(npm)
 
 Change the project to fit this structure:
 OptionsTracker/
@@ -84,6 +85,11 @@ current_price (float): The current price of a contract. Float for open contracts
 
 TODOs:
 Make website pretty and not an eyesore
+
+Make different fields per table, for example inactive contracts should have profit and close price while active table shouldn't
+
+Add a profit section for both active and inactive positions. Inactive positions profit will be set using the premium, strike, and close price while active
+positions profit will require adding a query for the option's current price and then subtracting from the initial premium.
 
 Add a "newly expired" section for contracts that expired since last time you opened app and also signs for "about to expire", etc
 
