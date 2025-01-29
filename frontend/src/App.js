@@ -52,11 +52,11 @@ function App() {
     }, []);
 
     // Handles changes to the inputs
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
         setFormData((prev) => ({
           ...prev,
-          [name]: value,
+          [name]: event.target.type === "number" ? Number(value) : value,
         }));
     };
 
@@ -157,7 +157,6 @@ function App() {
                     name="ticker"
                     id="ticker"
                     placeholder="Ticker"
-                    value={formData.ticker}
                     onChange={handleInputChange}
                     required
                 />
@@ -165,11 +164,10 @@ function App() {
                 <select 
                     class="form-select"
                     name="contract_type"
-                    value={formData.contract_type}
                     onChange={handleInputChange}
                     required
                 >
-                    <option value="" disabled>Choose Contract Type</option>
+                    <option value="" disabled selected>Choose Contract Type</option>
                     <option value="Call">Call</option>
                     <option value="Put">Put</option>
                 </select>
@@ -180,7 +178,6 @@ function App() {
                     name="quantity"
                     id="quantity"
                     placeholder="Quantity"
-                    value={formData.quantity}
                     onChange={handleInputChange}
                     required
                 />
@@ -191,7 +188,6 @@ function App() {
                     name="strike_price"
                     id="strike_price"
                     placeholder="Strike Price"
-                    value={formData.strike_price}
                     onChange={handleInputChange}
                     required
                 />
@@ -202,7 +198,6 @@ function App() {
                     name="expiration_date"
                     id="expiration_date"
                     placeholder="Expiration Date"
-                    value={formData.expiration_date}
                     onChange={handleInputChange}
                     required
                 />
@@ -213,7 +208,6 @@ function App() {
                     name="premium"
                     id="premium"
                     placeholder="Premium"
-                    value={formData.premium}
                     onChange={handleInputChange}
                     required
                 />
@@ -224,7 +218,6 @@ function App() {
                     name="open_price"
                     id="open_price"
                     placeholder="Open Price"
-                    value={formData.open_price}
                     onChange={handleInputChange}
                     required
                 />
@@ -235,7 +228,6 @@ function App() {
                     name="open_date"
                     id="open_date"
                     placeholder="Open Date"
-                    value={formData.open_date}
                     onChange={handleInputChange}
                     required
                 />

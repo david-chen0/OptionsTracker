@@ -8,7 +8,8 @@ pytest
 pytest-asynchio
 React
 axios(npm)
-bootstrap(npm)
+bootstrap(npm) REPLACE THIS WITH TAILWIND, FIGURE OUT ALL THE SPOTS IN THE PROJ WHERE WERE USING BOOTSTRAP
+tailwind(npm)
 
 Change the project to fit this structure:
 OptionsTracker/
@@ -42,8 +43,15 @@ OptionsTracker/
 
 
 To start webpage/server(for now):
-On one terminal, do python backend/run.py
-On another, cd into frontend then do npm start
+On one terminal, first launch the virtual env using
+source venv/bin/activate
+
+Then do
+python backend/run.py
+
+On another, go into frontend directory then do
+npm start
+
 Webpage will be at http://localhost:3000/, running npm start should autostart it though
 
 
