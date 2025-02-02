@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import './index.css';
+import React, { useEffect, useState } from "react";
 import { fetchOptionsPositions, addOptionsPosition } from "./api/optionsPositionsApi";
 
 function App() {
@@ -102,9 +103,9 @@ function App() {
     // This is to enforce that the active and inactive positions tables are identical.
     const PositionsTable = ({ positions, title }) => {
         return (
-            <div className="container mt-5">
-                <h1 className="text-center">{title}</h1>
-                <table className="table table-striped table-bordered">
+            <div className="max-w-7xl mx-auto mt-20 px-4">
+                <h1 className="text-center text-2xl font-bold">{title}</h1>
+                <table className="w-full border border-gray-300">
                     <thead>
                         <tr>
                             <th>Ticker</th>
@@ -140,98 +141,142 @@ function App() {
         )
     }
 
+    const inputFieldDesign = "w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500"
+    const fieldNameDesign = "block text-sm font-medium text-gray-700"
+    // THIS ISN'T WORKING AS HOPED. Basically the issue is that React re-renders everytime, so when we type, the caret goes away since React re-renders
+    // the field so the field is like new whenever we do onChange. When you have time, come back to fix this and change everything to use this
+    // LIKELY APPROACH THAT COULD WORK: Use useRef, since React won't re-render that. Figure out how to do so
+    // const InputField = ({ label, type, name, value, onChange, required }) => (
+    //     <div>
+    //         <label htmlFor={name} className={fieldNameDesign}>
+    //             {label}
+    //         </label>
+    //         <input
+    //             type={type}
+    //             className={inputFieldDesign}
+    //             name={name}
+    //             id={name}
+    //             value={value}
+    //             placeholder={label}
+    //             onChange={onChange}
+    //             required={required}
+    //         />
+    //     </div>
+    // );
+
+    // NEED TO MAKE A CHANGE TO THE CLASSNAME OF contract_type, SINCE THAT'S STILL USING BOOTSTRAP CSS
     return (
         <div>
-            <h1 className="text-center">Options Positions Tracker</h1>
+            <h1 className="text-center text-3xl font-bold">Options Positions Tracker</h1>
             <div>
                 <PositionsTable positions={activePositions} title="Active Positions" />
                 <PositionsTable positions={inactivePositions} title="Inactive Positions" />
             </div>
 
-            <h2 className="text-center">Add New Position</h2>
-            <form class="d-flex flex-wrap align-items-center gap-3" onSubmit={(e) => e.preventDefault()}>
-                <label for="ticker" class="form-label">Ticker</label>
+            <h2 className="text-center text-2xl font-bold">Add New Position</h2>
+            <form className="flex flex-wrap items-center gap-3" onSubmit={(e) => e.preventDefault()}>
+                <label htmlFor="ticker" className={fieldNameDesign}>
+                    Ticker
+                </label>
                 <input
                     type="text"
-                    class="form-control"
+                    className={inputFieldDesign}
                     name="ticker"
                     id="ticker"
                     placeholder="Ticker"
                     onChange={handleInputChange}
                     required
                 />
-                <label for="contract_type" class="form-label">Contract Type</label>
-                <select 
-                    class="form-select"
+                <label htmlFor="contract_type" className={fieldNameDesign}>Contract Type</label>
+                <select
+                    defaultValue={""}
+                    className={inputFieldDesign}
                     name="contract_type"
                     onChange={handleInputChange}
                     required
                 >
-                    <option value="" disabled selected>Choose Contract Type</option>
+                    <option value="" disabled>Choose Contract Type</option>
                     <option value="Call">Call</option>
                     <option value="Put">Put</option>
                 </select>
-                <label for="quantity" class="form-label">Quantity</label>
+                <label htmlFor="quantity" className={fieldNameDesign}>
+                    Quantity
+                </label>
                 <input
                     type="number"
-                    class="form-control"
+                    className={inputFieldDesign}
                     name="quantity"
                     id="quantity"
                     placeholder="Quantity"
                     onChange={handleInputChange}
                     required
                 />
-                <label for="strike_price" class="form-label">Strike Price</label>
+                <label htmlFor="strike_price" className={fieldNameDesign}>
+                    Strike Price
+                </label>
                 <input
                     type="number"
-                    class="form-control"
+                    className={inputFieldDesign}
                     name="strike_price"
                     id="strike_price"
                     placeholder="Strike Price"
                     onChange={handleInputChange}
                     required
                 />
-                <label for="expiration_date" class="form-label">Expiration Date</label>
+                <label htmlFor="ticker" className={fieldNameDesign}>
+                    Expiration Date
+                </label>
                 <input
                     type="date"
-                    class="form-control"
+                    className={inputFieldDesign}
                     name="expiration_date"
                     id="expiration_date"
                     placeholder="Expiration Date"
                     onChange={handleInputChange}
                     required
                 />
-                <label for="premium" class="form-label">Premium</label>
+                <label htmlFor="ticker" className={fieldNameDesign}>
+                    Premium
+                </label>
                 <input
                     type="number"
-                    class="form-control"
+                    className={inputFieldDesign}
                     name="premium"
                     id="premium"
                     placeholder="Premium"
                     onChange={handleInputChange}
                     required
                 />
-                <label for="open_price" class="form-label">Open Price</label>
+                <label htmlFor="ticker" className={fieldNameDesign}>
+                    Open Price
+                </label>
                 <input
                     type="number"
-                    class="form-control"
+                    className={inputFieldDesign}
                     name="open_price"
                     id="open_price"
                     placeholder="Open Price"
                     onChange={handleInputChange}
                     required
                 />
-                <label for="open_date" class="form-label">Open Date</label>
+                <label htmlFor="ticker" className={fieldNameDesign}>
+                    Open Date
+                </label>
                 <input
                     type="date"
-                    class="form-control"
+                    className={inputFieldDesign}
                     name="open_date"
                     id="open_date"
                     placeholder="Open Date"
                     onChange={handleInputChange}
                     required
                 />
-                <button class="btn btn-primary" onClick={handleAddPosition}>Add Position</button>
+                <button
+                    className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md"
+                    onClick={handleAddPosition}
+                >
+                    Add Position
+                </button>
             </form>
         </div>
     );

@@ -8,8 +8,9 @@ pytest
 pytest-asynchio
 React
 axios(npm)
-bootstrap(npm) REPLACE THIS WITH TAILWIND, FIGURE OUT ALL THE SPOTS IN THE PROJ WHERE WERE USING BOOTSTRAP
 tailwind(npm)
+postcss(npm)
+autoprefixer(npm)
 
 Change the project to fit this structure:
 OptionsTracker/
@@ -92,7 +93,9 @@ current_price (float): The current price of a contract. Float for open contracts
 
 
 TODOs:
-Make website pretty and not an eyesore
+Add a delete button for the contracts
+
+Figure out how the website should be arranged(where to put the tables, where to put the add contract form, etc)
 
 Make different fields per table, for example inactive contracts should have profit and close price while active table shouldn't
 
