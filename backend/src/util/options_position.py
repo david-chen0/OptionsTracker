@@ -22,26 +22,30 @@ class OptionsPosition:
     Represents an options position for an underlying security.
 
     Attributes:
+        position_id (int): The serial ID of this position in the DB
         ticker (str): The ticker symbol(ex: AAPL) for the underlying security
         contract_type (ContractType): The type of contract
         quantity (int): The number of contracts opened
         strike_price (float): The strike price of the contracts
-        expiration_date (str): The expiration date of the contracts, represented as YYYY-MM-DD
+        expiration_date (datetime): The expiration date of the contracts, represented as YYYY-MM-DD
+        is_expired (bool): Represents whether the position is expired
         premium (float): The premium per security for each of the contracts
         open_price (float): The price of the underlying security when the contract was opened
-        open_date (str): The date that the contract was opened, represented as YYYY-MM-DD
-        contract_status (PositionStatus): The status of the options position
+        open_date (datetime): The date that the contract was opened, represented as YYYY-MM-DD
+        position_status (PositionStatus): The status of the options position
         close_price (float): The price of the underlying security when the contract closed, set to -1 when the contract is still open
     """
 
+    position_id: int
     ticker: str
     contract_type: ContractType
     quantity: int
     strike_price: float
-    expiration_date: str
+    expiration_date: datetime
+    is_expired: bool
     premium: float
     open_price: float
-    open_date: str
+    open_date: datetime
     position_status: PositionStatus
     close_price: float
 
@@ -52,30 +56,29 @@ class OptionsPosition:
 
     def __init__(
         self,
+        position_id: int,
         ticker: str,
         contract_type: ContractType,
         quantity: int,
         strike_price: float,
-        expiration_date: str,
+        expiration_date: datetime,
         premium: float,
         open_price: float,
-        open_date: str,
+        open_date: datetime,
         position_status: PositionStatus = PositionStatus.OPEN,
         close_price: float = -1
     ):
-        # Validates that expiration date and open date fit the YYYY-MM-DD format
-        self.__validate_date_format(expiration_date)
-        self.__validate_date_format(open_date)
-
-        # check open date before expiratoin date
+        # check open date before expiration date
         
         # check positive premium
 
+        self.position_id = position_id
         self.ticker = ticker.upper()
         self.contract_type = contract_type
         self.quantity = quantity
         self.strike_price = strike_price
         self.expiration_date = expiration_date
+        self.is_expired = datetime.now().date() > expiration_date
         self.premium = premium
         self.open_price = open_price
         self.open_date = open_date
@@ -87,33 +90,26 @@ class OptionsPosition:
         Converts current options position to a dictionary format so that it can be saved to JSON format
         """
         return {
+            "position_id": self.position_id,
             "ticker": self.ticker,
             "contract_type": self.contract_type.name,
             "quantity": self.quantity,
             "strike_price": self.strike_price,
             "expiration_date": self.expiration_date,
+            "is_expired": self.is_expired,
             "premium": self.premium,
             "open_price": self.open_price,
             "open_date": self.open_date,
             "position_status": self.position_status.name,
             "close_price": self.close_price
         }
-
-    def __validate_date_format(self, date_str: str):
+    
+    def update_position_id(self, position_id: int):
         """
-        Validates that a date string is in 'YYYY-MM-DD' format and raises a ValueError if it isn't.
+        Updates the position_id. This should only be used when creating new positions, as we don't know the position_id until we access the DB.
         """
-        try:
-            datetime.strptime(date_str, "%Y-%m-%d")
-        except ValueError:
-            raise ValueError(f"Date '{date_str}' is not in the format 'YYYY-MM-DD'.")
-        
-    def is_expired(self) -> bool:
-        """
-        Returns whether the contract is expired.
-        """
-        is_expired = datetime.now().date() > datetime.strptime(self.expiration_date, '%Y-%m-%d').date()
-        return is_expired
+        print(f"Updating the position_id of {self.position_id} to {position_id}")
+        self.position_id = position_id
     
     def update_position_at_maturity(self, underlying_expiration_price: float):
         """
@@ -146,12 +142,16 @@ class OptionsPosition:
         
         return self.quantity * profit_per_contract
         
-def get_options_position(inputs: dict) -> OptionsPosition:
+# TODO: frontend API calls add, which calls this, but expiration_date and open_date are still strings, not datetime
+# figure out a way to make it into daytime. we could use datetime.strptime rn, but not sure if that's best way to do it
+def create_options_position(inputs: dict) -> OptionsPosition:
     """
     Creates and returns an option position using the input dictionary.
 
     This should be used over OptionsPosition(**inputs) because the constructor has some special checks.
     """
+    position_id = -1 if "position_id" not in inputs.keys() else inputs["position_id"]
+
     # String checks are because conversions from JavaScript causes many variables to be stored as strings
     contract_type = inputs["contract_type"].upper()
     quantity = inputs["quantity"]
@@ -179,6 +179,7 @@ def get_options_position(inputs: dict) -> OptionsPosition:
         close_price = float(close_price)
 
     return OptionsPosition(
+        position_id,
         inputs["ticker"],
         contract_type,
         quantity,

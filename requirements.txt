@@ -1,0 +1,13 @@
+# Dependencies for Python/pip
+# Install these dependencies by activating virtual environment and running
+# pip install -r requirements.txt
+
+yfinance
+psycopg2-binary
+Flask
+flask-cors
+aiofiles
+pytest
+pytest-asyncio
+React
+python-dotenv

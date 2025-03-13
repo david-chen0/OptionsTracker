@@ -9,7 +9,7 @@ def get_options_position_sort_key():
     """
     return lambda x: getattr(x, "expiration_date")
 
-def get_json_sort_key():
+def get_sort_key():
     """
     Same as method above, but for JSON/dictionaries
     """
@@ -21,12 +21,13 @@ def add_position_to_positions_list(position: OptionsPosition, positions_list: li
     """
     bisect.insort(positions_list, position, key=get_options_position_sort_key())
 
-def add_position_to_json_list(position: OptionsPosition, json_list: list):
+def add_position_to_list(position: OptionsPosition, positions_list: list):
     """
-    Adds the position to the input JSOON list using the sort key
+    Adds the position to the input positions list using the sort key
     """
-    bisect.insort(json_list, position.to_dict(), key=get_json_sort_key())
+    bisect.insort(positions_list, position.to_dict(), key=get_sort_key())
 
+# prolly won't need this, don't see it being used anywhere
 def compare_options_position_dict_and_object(options_position_dict: dict, options_position: OptionsPosition) -> bool:
     """
     Compares a dict and an OptionsPosition object and returns whether they have all the same values

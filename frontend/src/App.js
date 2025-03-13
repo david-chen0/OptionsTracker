@@ -99,6 +99,23 @@ function App() {
         }
     };
 
+    // Handles when the DeletePosition button(the red X next to positions) is hit
+    const handleDelete = async (position) => {
+        // User must confirm that they want to delete the position
+        console.log(`Deleting position with ticker ${position.ticker} corresponding to serial id ${position.position_id}`);
+        if (!window.confirm("Are you sure you want to delete this position?")) {
+            return;
+        }
+
+        // Create and call a backend API to get the position, delete the position, and then return whether the position was active or not
+        // using whether it was active or inactive, set the table using the statement below(might need to tweak with it)
+
+        // Recommended: Maybe make an API to just get if the position we're passing in is active or inactive
+        // can also be used to make the handleAddPosition easier
+
+        setInactivePositions((prev) => prev.filter((prevPosition) => prevPosition.id !== position.id));
+    };
+
     // Table to display the positions for both active and inactive positions.
     // This is to enforce that the active and inactive positions tables are identical.
     const PositionsTable = ({ positions, title }) => {
@@ -118,6 +135,7 @@ function App() {
                             <th>Open Date</th>
                             <th>Position Status</th>
                             <th>Close Price</th>
+                            <th>Actions</th> {/* New column for delete button */}
                         </tr>
                     </thead>
                     <tbody>
@@ -133,6 +151,14 @@ function App() {
                                 <td>{pos.open_date}</td>
                                 <td>{pos.position_status}</td>
                                 <td>{pos.close_price}</td>
+                                <td>
+                                    <button
+                                        onClick={() => handleDelete(pos)}
+                                        className="text-red-500 hover:text-red-700 p-1"
+                                    >
+                                        Delete
+                                    </button>
+                                </td>
                             </tr>
                         ))}
                     </tbody>

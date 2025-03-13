@@ -1,12 +1,5 @@
 Dependencies used:
-Python/pip
-yfinance
-Flask
-flask-cors
-aiofiles
-pytest
-pytest-asynchio
-React
+Pip dependencies listed in requirements.txt
 axios(npm)
 tailwind(npm)
 postcss(npm)
@@ -45,7 +38,7 @@ OptionsTracker/
 
 To start webpage/server(for now):
 On one terminal, first launch the virtual env using
-source venv/bin/activate
+.\venv\Scripts\Activate
 
 Then do
 python backend/run.py
@@ -54,6 +47,12 @@ On another, go into frontend directory then do
 npm start
 
 Webpage will be at http://localhost:3000/, running npm start should autostart it though
+
+PSQL:
+Use \l to see databases
+Use \c <DB> to go into a DB
+Use \d to list all the tables in a DB
+Use \d <table_name> to describe a table/sequence
 
 
 AFTER BUSINESS LOGIC IS MORE COMPLETE, UPDATE THIS
@@ -93,19 +92,25 @@ current_price (float): The current price of a contract. Float for open contracts
 
 
 TODOs:
-Add a delete button for the contracts
+Change the current code to accept a serial number as the unique id, that way we can easily connect it once psql is setup
+rn i think i have everything setup in the backend for it, but we need to pass this value to the frontend so that it can also keep track of it without displaying it
+this is needed for operations like delete, get, etc
+
+Change to a better DB system using PostgreSQL.
+
+Add a delete button for the contracts. It should be like a red X next to the contract in the table and when it's clicked, it first gives a warning then it deletes if user hits yes
 
 Figure out how the website should be arranged(where to put the tables, where to put the add contract form, etc)
+
+Add a "newly expired" section for contracts that expired since last time you opened app and also signs for "about to expire", etc
+
+Add sorting, grouping, and searching by custom fields(ex: sort/group/search by ticker NVDA)
 
 Make different fields per table, for example inactive contracts should have profit and close price while active table shouldn't
 
 Add a profit section for both active and inactive positions. Inactive positions profit will be set using the premium, strike, and close price while active
 positions profit will require adding a query for the option's current price and then subtracting from the initial premium.
 
-Add a "newly expired" section for contracts that expired since last time you opened app and also signs for "about to expire", etc
+Look into making the operations async. Separation between frontend and backend, we can show things frontend and async do things in the backend, like delete from frontend then async delete from backend DB
 
 Explore all the possibilities that yf offers and try to see what can be improved using that. For example, yf offers something to display the next upcoming earnings date
-
-Find a way to store the data online and with better functionality(ex: indexes, replicas, snapshots, etc) so that it can be easily used for all
-
-Hook this up with brokers(this is a very long term goal, very difficult esp when considering security concerns)
