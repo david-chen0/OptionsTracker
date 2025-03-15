@@ -2,6 +2,7 @@ import bisect
 from datetime import datetime, timedelta
 from .options_position import *
 
+# TODO: Figure out whether we even need this file or if we can just merge everything into the OptionsPosition file
 def get_options_position_sort_key():
     """
     Provides the sort key we use for our OptionsPositions. Purpose of method is so that the sort key will be consistent

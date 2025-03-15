@@ -1,6 +1,5 @@
 # import asyncio
 from flask import Blueprint, request
-import os
 from src.data.data_fetcher import *
 from src.data.option_positions_dao import *
 from src.util.common import *

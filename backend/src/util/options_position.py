@@ -78,7 +78,7 @@ class OptionsPosition:
         self.quantity = quantity
         self.strike_price = strike_price
         self.expiration_date = expiration_date
-        self.is_expired = datetime.now().date() > expiration_date
+        self.is_expired = datetime.now() > expiration_date
         self.premium = premium
         self.open_price = open_price
         self.open_date = open_date
@@ -141,9 +141,17 @@ class OptionsPosition:
             raise ValueError(f"Unsupported contract type: {self.contract_type}")
         
         return self.quantity * profit_per_contract
-        
-# TODO: frontend API calls add, which calls this, but expiration_date and open_date are still strings, not datetime
-# figure out a way to make it into daytime. we could use datetime.strptime rn, but not sure if that's best way to do it
+
+# TODO: I just slapped this in here since I can't put it into common, since it'll create a circular dependency
+# figure out where to put it
+def string_to_datetime(date_str: str) -> datetime:
+    """
+    Converts a date string with the YYYY-MM-DD format into a datetime object.
+
+    A ValueError will be thrown if the string is not able to be converted
+    """
+    return datetime.strptime(date_str, "%Y-%m-%d")
+
 def create_options_position(inputs: dict) -> OptionsPosition:
     """
     Creates and returns an option position using the input dictionary.
@@ -151,6 +159,8 @@ def create_options_position(inputs: dict) -> OptionsPosition:
     This should be used over OptionsPosition(**inputs) because the constructor has some special checks.
     """
     position_id = -1 if "position_id" not in inputs.keys() else inputs["position_id"]
+    expiration_date = string_to_datetime(inputs["expiration_date"])
+    open_date = string_to_datetime(inputs["open_date"])
 
     # String checks are because conversions from JavaScript causes many variables to be stored as strings
     contract_type = inputs["contract_type"].upper()
@@ -184,10 +194,10 @@ def create_options_position(inputs: dict) -> OptionsPosition:
         contract_type,
         quantity,
         strike_price,
-        inputs["expiration_date"],
+        expiration_date,
         inputs["premium"],
         open_price,
-        inputs["open_date"],
+        open_date,
         position_status,
         close_price
     )
