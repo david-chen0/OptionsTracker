@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from enum import Enum
 
 class ContractType(Enum):
@@ -27,11 +27,11 @@ class OptionsPosition:
         contract_type (ContractType): The type of contract
         quantity (int): The number of contracts opened
         strike_price (float): The strike price of the contracts
-        expiration_date (datetime): The expiration date of the contracts, represented as YYYY-MM-DD
+        expiration_date (date): The expiration date of the contracts, represented as YYYY-MM-DD
         is_expired (bool): Represents whether the position is expired
         premium (float): The premium per security for each of the contracts
         open_price (float): The price of the underlying security when the contract was opened
-        open_date (datetime): The date that the contract was opened, represented as YYYY-MM-DD
+        open_date (date): The date that the contract was opened, represented as YYYY-MM-DD
         position_status (PositionStatus): The status of the options position
         close_price (float): The price of the underlying security when the contract closed, set to -1 when the contract is still open
     """
@@ -41,11 +41,11 @@ class OptionsPosition:
     contract_type: ContractType
     quantity: int
     strike_price: float
-    expiration_date: datetime
+    expiration_date: date
     is_expired: bool
     premium: float
     open_price: float
-    open_date: datetime
+    open_date: date
     position_status: PositionStatus
     close_price: float
 
@@ -61,10 +61,10 @@ class OptionsPosition:
         contract_type: ContractType,
         quantity: int,
         strike_price: float,
-        expiration_date: datetime,
+        expiration_date: date,
         premium: float,
         open_price: float,
-        open_date: datetime,
+        open_date: date,
         position_status: PositionStatus = PositionStatus.OPEN,
         close_price: float = -1
     ):
@@ -78,14 +78,14 @@ class OptionsPosition:
         self.quantity = quantity
         self.strike_price = strike_price
         self.expiration_date = expiration_date
-        self.is_expired = datetime.now() > expiration_date
+        self.is_expired = datetime.now().date() > expiration_date
         self.premium = premium
         self.open_price = open_price
         self.open_date = open_date
         self.position_status = position_status
         self.close_price = close_price
-
-    def to_dict(self):
+    
+    def __json__(self) -> dict:
         """
         Converts current options position to a dictionary format so that it can be saved to JSON format
         """
@@ -95,11 +95,11 @@ class OptionsPosition:
             "contract_type": self.contract_type.name,
             "quantity": self.quantity,
             "strike_price": self.strike_price,
-            "expiration_date": self.expiration_date,
+            "expiration_date": self.expiration_date.isoformat(),    
             "is_expired": self.is_expired,
             "premium": self.premium,
             "open_price": self.open_price,
-            "open_date": self.open_date,
+            "open_date": self.open_date.isoformat(),
             "position_status": self.position_status.name,
             "close_price": self.close_price
         }
@@ -144,13 +144,13 @@ class OptionsPosition:
 
 # TODO: I just slapped this in here since I can't put it into common, since it'll create a circular dependency
 # figure out where to put it
-def string_to_datetime(date_str: str) -> datetime:
+def string_to_date(date_str: str) -> date:
     """
-    Converts a date string with the YYYY-MM-DD format into a datetime object.
+    Converts a date string with the YYYY-MM-DD format into a date object.
 
     A ValueError will be thrown if the string is not able to be converted
     """
-    return datetime.strptime(date_str, "%Y-%m-%d")
+    return datetime.strptime(date_str, "%Y-%m-%d").date()
 
 def create_options_position(inputs: dict) -> OptionsPosition:
     """
@@ -159,8 +159,8 @@ def create_options_position(inputs: dict) -> OptionsPosition:
     This should be used over OptionsPosition(**inputs) because the constructor has some special checks.
     """
     position_id = -1 if "position_id" not in inputs.keys() else inputs["position_id"]
-    expiration_date = string_to_datetime(inputs["expiration_date"])
-    open_date = string_to_datetime(inputs["open_date"])
+    expiration_date = string_to_date(inputs["expiration_date"])
+    open_date = string_to_date(inputs["open_date"])
 
     # String checks are because conversions from JavaScript causes many variables to be stored as strings
     contract_type = inputs["contract_type"].upper()

@@ -29,3 +29,14 @@ export async function addOptionsPosition(positionData) {
     if (!response.ok) throw new Error("Failed to add position");
     return response.json();
 }
+
+export async function deleteOptionsPosition(positionId) {
+    const actual_api_url = API_URL + "/delete_position";
+    const response = await fetch(actual_api_url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({position_id: positionId}),
+    });
+    if (!response.ok) throw new Error("Failed to delete position");
+    return response.json();
+}

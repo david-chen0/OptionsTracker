@@ -1,6 +1,6 @@
 import './index.css';
 import React, { useEffect, useState } from "react";
-import { fetchOptionsPositions, addOptionsPosition } from "./api/optionsPositionsApi";
+import { addOptionsPosition, deleteOptionsPosition, fetchOptionsPositions } from "./api/optionsPositionsApi";
 
 function App() {
     // Default form for the form to be reset to after AddPosition is called
@@ -107,13 +107,15 @@ function App() {
             return;
         }
 
-        // Create and call a backend API to get the position, delete the position, and then return whether the position was active or not
-        // using whether it was active or inactive, set the table using the statement below(might need to tweak with it)
-
-        // Recommended: Maybe make an API to just get if the position we're passing in is active or inactive
-        // can also be used to make the handleAddPosition easier
-
-        setInactivePositions((prev) => prev.filter((prevPosition) => prevPosition.id !== position.id));
+        // Delete the position in the backend
+        const deletePositionResponse = await deleteOptionsPosition(position.position_id);
+        // SOMETHING IS WRONG HERE, FOR SOME REASON IT'S WIPING OUT EVERYTHING FROM THAT TABLE RATHER THAN JUST THE ITEM
+        // WE DON'T WANT TO RELY ON BACKEND FOR THIS ONE, JUST USE THE FRONTEND INFO NAMELY THE ONE WE HIT DELETE ON
+        if (deletePositionResponse["inactive"]) {
+            setInactivePositions((prev) => prev.filter((prevPosition) => prevPosition.id !== position.id));
+        } else {
+            setActivePositions((prev) => prev.filter((prevPosition) => prevPosition.id !== position.id));
+        }
     };
 
     // Table to display the positions for both active and inactive positions.

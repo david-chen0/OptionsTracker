@@ -3,30 +3,18 @@ from datetime import datetime, timedelta
 from .options_position import *
 
 # TODO: Figure out whether we even need this file or if we can just merge everything into the OptionsPosition file
-def get_options_position_sort_key():
+def get_sort_key():
     """
     Provides the sort key we use for our OptionsPositions. Purpose of method is so that the sort key will be consistent
     across all files and changes only need to be made here
     """
-    return lambda x: getattr(x, "expiration_date")
-
-def get_sort_key():
-    """
-    Same as method above, but for JSON/dictionaries
-    """
-    return lambda x: x["expiration_date"]
-
-def add_position_to_positions_list(position: OptionsPosition, positions_list: list):
-    """
-    Adds the position to the input OptionsPosition list using the sort key
-    """
-    bisect.insort(positions_list, position, key=get_options_position_sort_key())
+    return lambda x: x.expiration_date
 
 def add_position_to_list(position: OptionsPosition, positions_list: list):
     """
     Adds the position to the input positions list using the sort key
     """
-    bisect.insort(positions_list, position.to_dict(), key=get_sort_key())
+    bisect.insort(positions_list, position, key=get_sort_key())
 
 # prolly won't need this, don't see it being used anywhere
 def compare_options_position_dict_and_object(options_position_dict: dict, options_position: OptionsPosition) -> bool:

@@ -53,6 +53,7 @@ Use \l to see databases
 Use \c <DB> to go into a DB
 Use \d to list all the tables in a DB
 Use \d <table_name> to describe a table/sequence
+Use ALTER SEQUENCE <sequence_name> RESTART WITH 1; to restart a sequence
 
 
 AFTER BUSINESS LOGIC IS MORE COMPLETE, UPDATE THIS

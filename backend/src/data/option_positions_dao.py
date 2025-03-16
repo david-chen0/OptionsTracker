@@ -70,7 +70,8 @@ def check_position_id_is_valid(position_id: int):
     """
     Helper method to check if the input position_id is valid by checking if it is less than or equal to the current position_id
     """
-    current_position_id = cursor.execute(f"SELECT last_value FROM {CURRENT_POSITION_ID_SEQUENCE};")
+    cursor.execute(f"SELECT last_value FROM {CURRENT_POSITION_ID_SEQUENCE};")
+    current_position_id = cursor.fetchone()[0]
 
     if current_position_id < position_id:
         raise Exception(f"Input position_id {position_id} can not be greater than current position_id {current_position_id}")
@@ -84,7 +85,6 @@ def row_to_options_position(row: dict) -> OptionsPosition:
         quantity=row[3],
         strike_price=float(row[4]),
         expiration_date=row[5],
-        is_expired=row[6],
         premium=float(row[7]),
         open_price=float(row[8]),
         open_date=row[9],
@@ -93,7 +93,92 @@ def row_to_options_position(row: dict) -> OptionsPosition:
     )
 
 
-# Main methods
+# Read methods
+def is_position_expired(position_id: int) -> bool:
+    """
+    Returns whether the OptionsPosition corresponding to the input position_id is expired
+    """
+    check_position_id_is_valid(position_id)
+
+    try:
+        # Use a READ_COMMITTED transaction to get the option position by position_id
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
+        cursor.execute(f"""
+           SELECT is_expired FROM {OPTION_POSITIONS_TABLE} WHERE position_id = %s            
+        """, (position_id,))
+        row = cursor.fetchone()
+        if not row:
+            # This means that the corresponding position does not exist
+            print(f"Position corresponding to position_id {position_id} does not exist.")
+            return None
+
+        return row[0]
+    except Exception as e:
+        conn.rollback()
+        print(f"Encountered error {e}")
+        raise e
+
+def get_option_position(position_id: int) -> OptionsPosition:
+    """
+    Returns the OptionsPosition corresponding to the input position_id
+    """
+    check_position_id_is_valid(position_id)
+
+    try:
+        # Use a READ_COMMITTED transaction to get the option position by position_id
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
+        cursor.execute(f"""
+           SELECT {option_positions_fields} FROM {OPTION_POSITIONS_TABLE} WHERE position_id = %s            
+        """, (position_id))
+        row = cursor.fetchone()
+        if not row:
+            # This means that the corresponding position does not exist
+            print(f"Position corresponding to position_id {position_id} does not exist.")
+            return None
+
+        return row_to_options_position(row)
+    except Exception as e:
+        conn.rollback()
+        print(f"Encountered error {e}")
+        raise e
+
+def get_positions(get_active: bool, get_inactive: bool) -> list:
+    """
+    Returns all option positions based on the input arguments.
+    If get_active is true, then we'll add active positions to the return list. Same for inactive positions if get_inactive is true.
+    The returned result will be ordered by expiration date
+    """
+    if not get_active and not get_inactive:
+        return []
+
+    rows = None
+    try:
+        # Use a READ_COMMITTED transaction to get the option position by position_id
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
+
+        conditional_statement = ""
+        if get_active != get_inactive:
+            conditional_statement += "WHERE is_expired = "
+            conditional_statement += "false" if get_active else "true"
+        
+        cursor.execute(f"""
+        SELECT {option_positions_fields} FROM {OPTION_POSITIONS_TABLE} {conditional_statement} ORDER BY expiration_date  
+        """)
+        rows = cursor.fetchall()
+    except Exception as e:
+        conn.rollback()
+        print(f"Encountered error {e}")
+        raise e
+    
+    result = []
+    if rows:
+        for row in rows:
+            result.append(row_to_options_position(row))
+
+    return result
+
+
+# Write methods
 def add_option_position(position: OptionsPosition) -> int:
     """
     Adds the input option position to the DB and returns the position_id corresponding to this position(for the frontend to use)
@@ -132,29 +217,6 @@ def add_option_position(position: OptionsPosition) -> int:
         raise e
 
     return position_id
-
-def get_option_position(position_id: int) -> OptionsPosition:
-    """
-    Returns the OptionsPosition corresponding to the input position_id
-    """
-    check_position_id_is_valid(position_id)
-
-    try:
-        # Use a READ_COMMITTED transaction to get the option position by position_id
-        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
-        cursor.execute(f"""
-           SELECT {option_positions_fields} FROM {OPTION_POSITIONS_TABLE} WHERE position_id = %s            
-        """, (position_id))
-        row = cursor.fetchone()
-        if not row:
-            # This means that the corresponding position does not exist
-            print(f"Position corresponding to position_id {position_id} does not exist.")
-            return None
-
-        return row_to_options_position(row)
-    except Exception as e:
-        conn.rollback()
-        print(f"Encountered error {e}")
 
 def update_option_position(position_id: int, updates: dict):
     """
@@ -200,6 +262,7 @@ def update_option_position(position_id: int, updates: dict):
     except Exception as e:
         conn.rollback()
         print(f"Encountered error {e}")
+        raise e
 
     print(f"Successfully updated position corresponding to position_id {position_id}")
 
@@ -209,40 +272,16 @@ def delete_option_position(position_id: int):
     """
     check_position_id_is_valid(position_id)
     
-    # delete that position from the option_positions table
-
-    # TODO
-
-def get_positions(get_active: bool, get_inactive: bool) -> list:
-    """
-    Returns all option positions based on the input arguments.
-    If get_active is true, then we'll add active positions to the return list. Same for inactive positions if get_inactive is true.
-    The returned result will be ordered by expiration date
-    """
-    if not get_active and not get_inactive:
-        return []
-
-    rows = None
     try:
-        # Use a READ_COMMITTED transaction to get the option position by position_id
-        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
-
-        conditional_statement = ""
-        if get_active != get_inactive:
-            conditional_statement += "WHERE is_expired = "
-            conditional_statement += "false" if get_active else "true"
-        
-        cursor.execute(f"""
-        SELECT {option_positions_fields} FROM {OPTION_POSITIONS_TABLE} {conditional_statement} ORDER BY expiration_date  
-        """)
-        rows = cursor.fetchall()
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE)
+        cursor.execute(
+            f"""DELETE FROM {OPTION_POSITIONS_TABLE} where position_id = %s;""",
+            (position_id,) 
+        )
+        conn.commit()
     except Exception as e:
         conn.rollback()
         print(f"Encountered error {e}")
+        raise e
     
-    result = []
-    if rows:
-        for row in rows:
-            result.append(row_to_options_position(row))
-
-    return result
+    print(f"Successfully deleted the position corresponding to position_id {position_id}")
