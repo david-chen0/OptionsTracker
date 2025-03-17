@@ -93,10 +93,6 @@ current_price (float): The current price of a contract. Float for open contracts
 
 
 TODOs:
-Add a delete button for the contracts. It should be like a red X next to the contract in the table and when it's clicked, it first gives a warning then it deletes if user hits yes
-
-Make input fields clear/reset when add position is hit
-
 Figure out how the website should be arranged(where to put the tables, where to put the add contract form, etc)
 
 Add a "newly expired" section for contracts that expired since last time you opened app and also signs for "about to expire", etc

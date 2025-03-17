@@ -192,6 +192,7 @@ function App() {
                     name="ticker"
                     id="ticker"
                     placeholder="Ticker"
+                    value={formData.ticker}  // Ensure the input is controlled
                     onChange={handleInputChange}
                     required
                 />
@@ -200,6 +201,7 @@ function App() {
                     defaultValue={""}
                     className={inputFieldDesign}
                     name="contract_type"
+                    value={formData.contract_type}  // Ensure the input is controlled
                     onChange={handleInputChange}
                     required
                 >
@@ -216,6 +218,7 @@ function App() {
                     name="quantity"
                     id="quantity"
                     placeholder="Quantity"
+                    value={formData.quantity}  // Ensure the input is controlled
                     onChange={handleInputChange}
                     required
                 />
@@ -228,6 +231,7 @@ function App() {
                     name="strike_price"
                     id="strike_price"
                     placeholder="Strike Price"
+                    value={formData.strike_price}  // Ensure the input is controlled
                     onChange={handleInputChange}
                     required
                 />
@@ -240,6 +244,7 @@ function App() {
                     name="expiration_date"
                     id="expiration_date"
                     placeholder="Expiration Date"
+                    value={formData.expiration_date}  // Ensure the input is controlled
                     onChange={handleInputChange}
                     required
                 />
@@ -252,6 +257,7 @@ function App() {
                     name="premium"
                     id="premium"
                     placeholder="Premium"
+                    value={formData.premium}  // Ensure the input is controlled
                     onChange={handleInputChange}
                     required
                 />
@@ -264,6 +270,7 @@ function App() {
                     name="open_price"
                     id="open_price"
                     placeholder="Open Price"
+                    value={formData.open_price}  // Ensure the input is controlled
                     onChange={handleInputChange}
                     required
                 />
@@ -276,6 +283,7 @@ function App() {
                     name="open_date"
                     id="open_date"
                     placeholder="Open Date"
+                    value={formData.open_date}  // Ensure the input is controlled
                     onChange={handleInputChange}
                     required
                 />
