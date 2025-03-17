@@ -109,12 +109,12 @@ function App() {
 
         // Delete the position in the backend
         const deletePositionResponse = await deleteOptionsPosition(position.position_id);
-        // SOMETHING IS WRONG HERE, FOR SOME REASON IT'S WIPING OUT EVERYTHING FROM THAT TABLE RATHER THAN JUST THE ITEM
-        // WE DON'T WANT TO RELY ON BACKEND FOR THIS ONE, JUST USE THE FRONTEND INFO NAMELY THE ONE WE HIT DELETE ON
+
+        // Delete the position from the corresponding table
         if (deletePositionResponse["inactive"]) {
-            setInactivePositions((prev) => prev.filter((prevPosition) => prevPosition.id !== position.id));
+            setInactivePositions(inactivePositions.filter((item, index) => item.position_id !== position.position_id));
         } else {
-            setActivePositions((prev) => prev.filter((prevPosition) => prevPosition.id !== position.id));
+            setActivePositions(activePositions.filter((item, index) => item.position_id !== position.position_id));
         }
     };
 
@@ -171,26 +171,6 @@ function App() {
 
     const inputFieldDesign = "w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500"
     const fieldNameDesign = "block text-sm font-medium text-gray-700"
-    // THIS ISN'T WORKING AS HOPED. Basically the issue is that React re-renders everytime, so when we type, the caret goes away since React re-renders
-    // the field so the field is like new whenever we do onChange. When you have time, come back to fix this and change everything to use this
-    // LIKELY APPROACH THAT COULD WORK: Use useRef, since React won't re-render that. Figure out how to do so
-    // const InputField = ({ label, type, name, value, onChange, required }) => (
-    //     <div>
-    //         <label htmlFor={name} className={fieldNameDesign}>
-    //             {label}
-    //         </label>
-    //         <input
-    //             type={type}
-    //             className={inputFieldDesign}
-    //             name={name}
-    //             id={name}
-    //             value={value}
-    //             placeholder={label}
-    //             onChange={onChange}
-    //             required={required}
-    //         />
-    //     </div>
-    // );
 
     // NEED TO MAKE A CHANGE TO THE CLASSNAME OF contract_type, SINCE THAT'S STILL USING BOOTSTRAP CSS
     return (

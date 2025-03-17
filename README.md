@@ -93,13 +93,9 @@ current_price (float): The current price of a contract. Float for open contracts
 
 
 TODOs:
-Change the current code to accept a serial number as the unique id, that way we can easily connect it once psql is setup
-rn i think i have everything setup in the backend for it, but we need to pass this value to the frontend so that it can also keep track of it without displaying it
-this is needed for operations like delete, get, etc
-
-Change to a better DB system using PostgreSQL.
-
 Add a delete button for the contracts. It should be like a red X next to the contract in the table and when it's clicked, it first gives a warning then it deletes if user hits yes
+
+Make input fields clear/reset when add position is hit
 
 Figure out how the website should be arranged(where to put the tables, where to put the add contract form, etc)
 
