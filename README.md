@@ -4,36 +4,11 @@ axios(npm)
 tailwind(npm)
 postcss(npm)
 autoprefixer(npm)
+framer-motion(npm)
 
-Change the project to fit this structure:
-OptionsTracker/
-├── backend/                  # Flask backend files (Python)
-│   ├── src/                  # Your Flask app folder
-│   │   ├── __init__.py       # Initialize Flask app and routing
-│   │   ├── routes.py         # API routes for the Flask app
-│   │   ├── models.py         # Database models and backend logic
-│   │   └── service_logic     # Folders and files for service logic
-│   ├── test/                 # Tests for backend code
-│   │   ├── __init__.py
-│   │   ├── test_routes.py    # Tests for the Flask routes
-│   │   ├── test_services.py  # Tests for the backend services
-│   │   └── test_models.py    # Tests for backend models
-|   └── run.py                # Script to run the Flask backend
-│   ├── requirements.txt      # List of backend dependencies
-│   └── config.py             # Configuration settings for Flask
-├── frontend/                 # React frontend files
-│   ├── public/               # Public static files (e.g., index.html, images)
-│   ├── src/                  # React app source code
-│   │   ├── components/       # Reusable React components
-│   │   ├── pages/            # React pages (views)
-│   │   ├── services/         # API calls to Flask backend
-│   │   ├── App.js            # Main React app component
-│   │   └── index.js          # React entry point
-│   ├── package.json          # Frontend dependencies and scripts
-│   └── .env                  # Frontend environment variables
-├── data/                     # Local data files (e.g. JSON files, CSVs)
-├── .gitignore                # Ignore unnecessary files in Git
-├── README.md                 # Project overview and setup instructions
+if tailwindcss fails again, you can re-install by removing it via npm, removing output.css, then running
+npx @tailwindcss/cli -i ./src/index.css -o ./src/output.css --watch
+in the frontend dir
 
 
 To start webpage/server(for now):
@@ -79,19 +54,21 @@ One main thing to have at the top is a jump-to section, which will let you jump 
 
 
 TODOs:
-Figure out how the website should be arranged(where to put the tables, where to put the add contract form, etc)
+Make the input section only as wide as necessary, not a set width of 1/4(frontend)
 
-Switch all "inactive" terminology to "expired"
+Switch all "inactive" terminology to "expired"(both)
 
-Add a "newly expired" section for contracts that expired since last time you opened app and also signs for "about to expire", etc
+Add a "newly expired" section for contracts that expired since last time you opened app and also signs for "about to expire", etc(both)
 
-Add sorting, grouping, and searching by custom fields(ex: sort/group/search by ticker NVDA)
+Add sorting, grouping, and searching by custom fields(ex: sort/group/search by ticker NVDA)(both)
+
+Add a price section for active contracts, which will query for the option's latest price only on first load or refresh(both)
 
 Add a profit section for both active and inactive positions. Inactive positions profit will be set using the premium, strike, and close price while active
-positions profit will require adding a query for the option's current price and then subtracting from the initial premium.
+positions profit will require adding a query for the option's current price and then subtracting from the initial premium.(both)
 
-Look into making the operations async. Separation between frontend and backend, we can show things frontend and async do things in the backend, like delete from frontend then async delete from backend DB
+Look into making the operations async. Separation between frontend and backend, we can show things frontend and async do things in the backend, like delete from frontend then async delete from backend DB(backend)
 
-Make sessions sync their data, ex: people can have multiple tabs open
+Make sessions sync their data, ex: people can have multiple tabs open(both)
 
-Explore all the possibilities that yf offers and try to see what can be improved using that. For example, yf offers something to display the next upcoming earnings date
+Explore all the possibilities that yf offers and try to see what can be improved using that. For example, yf offers something to display the next upcoming earnings date(backend)

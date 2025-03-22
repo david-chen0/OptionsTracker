@@ -35,6 +35,9 @@ function App() {
     // Form for the user to input their addPosition data
     const [formData, setFormData] = useState(defaultForm);
 
+    // Used to track whether the InputSection is visible/extended out
+    const [isInputVisible, setIsInputVisible] = useState(false);
+
     useEffect(() => {
         async function loadPositions() {
             try {
@@ -51,15 +54,6 @@ function App() {
         }
         loadPositions();
     }, []);
-
-    // Handles changes to the inputs
-    const handleInputChange = (event) => {
-        const { name, value } = event.target;
-        setFormData((prev) => ({
-          ...prev,
-          [name]: event.target.type === "number" ? Number(value) : value,
-        }));
-    };
 
     // Handles when the AddPosition button is hit
     const handleAddPosition = async () => {
@@ -118,12 +112,26 @@ function App() {
         }
     };
 
+    // Handles changes to the inputs
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
+        setFormData((prev) => ({
+          ...prev,
+          [name]: event.target.type === "number" ? Number(value) : value,
+        }));
+    };
+
+    // Method to flip the boolean value of the isVisible variable
+    const toggleInputSection = () => {
+        setIsInputVisible((prev) => !prev);
+    };
+
     // Table to display the positions for both active and inactive positions.
     // This is to enforce that the active and inactive positions tables are identical.
     const PositionsTable = ({ positions, title }) => {
         return (
-            <div className="max-w-7xl mx-auto mt-20 px-4">
-                <h1 className="text-center text-2xl font-bold">{title}</h1>
+            <div className="w-full max-w-full mt-20 px-4">
+                <h1 className="text-white text-center text-2xl font-bold">{title}</h1>
                 <table className="w-full border border-gray-300">
                     <thead>
                         <tr>
@@ -167,133 +175,172 @@ function App() {
                 </table>
             </div>
         )
-    }
+    };
 
-    const inputFieldDesign = "w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500"
-    const fieldNameDesign = "block text-sm font-medium text-gray-700"
 
-    // NEED TO MAKE A CHANGE TO THE CLASSNAME OF contract_type, SINCE THAT'S STILL USING BOOTSTRAP CSS
-    return (
-        <div>
-            <h1 className="text-center text-3xl font-bold">Options Positions Tracker</h1>
-            <div>
+    // This section contains with all the tables
+    const TableSection = ({ isInputVisible }) => {
+        return (
+            <div className={`bg-gray-700 flex flex-col items-center justify-center transition-all duration-300 ${isInputVisible ? "w-3/4" : "w-full"}`}>
+                {/* List of the position tables */}
                 <PositionsTable positions={activePositions} title="Active Positions" />
                 <PositionsTable positions={inactivePositions} title="Inactive Positions" />
             </div>
+        )
+    };
 
-            <h2 className="text-center text-2xl font-bold">Add New Position</h2>
-            <form className="flex flex-wrap items-center gap-3" onSubmit={(e) => e.preventDefault()}>
-                <label htmlFor="ticker" className={fieldNameDesign}>
-                    Ticker
-                </label>
-                <input
-                    type="text"
-                    className={inputFieldDesign}
-                    name="ticker"
-                    id="ticker"
-                    placeholder="Ticker"
-                    value={formData.ticker}  // Ensure the input is controlled
-                    onChange={handleInputChange}
-                    required
-                />
-                <label htmlFor="contract_type" className={fieldNameDesign}>Contract Type</label>
-                <select
-                    defaultValue={""}
-                    className={inputFieldDesign}
-                    name="contract_type"
-                    value={formData.contract_type}  // Ensure the input is controlled
-                    onChange={handleInputChange}
-                    required
-                >
-                    <option value="" disabled>Choose Contract Type</option>
-                    <option value="Call">Call</option>
-                    <option value="Put">Put</option>
-                </select>
-                <label htmlFor="quantity" className={fieldNameDesign}>
-                    Quantity
-                </label>
-                <input
-                    type="number"
-                    className={inputFieldDesign}
-                    name="quantity"
-                    id="quantity"
-                    placeholder="Quantity"
-                    value={formData.quantity}  // Ensure the input is controlled
-                    onChange={handleInputChange}
-                    required
-                />
-                <label htmlFor="strike_price" className={fieldNameDesign}>
-                    Strike Price
-                </label>
-                <input
-                    type="number"
-                    className={inputFieldDesign}
-                    name="strike_price"
-                    id="strike_price"
-                    placeholder="Strike Price"
-                    value={formData.strike_price}  // Ensure the input is controlled
-                    onChange={handleInputChange}
-                    required
-                />
-                <label htmlFor="ticker" className={fieldNameDesign}>
-                    Expiration Date
-                </label>
-                <input
-                    type="date"
-                    className={inputFieldDesign}
-                    name="expiration_date"
-                    id="expiration_date"
-                    placeholder="Expiration Date"
-                    value={formData.expiration_date}  // Ensure the input is controlled
-                    onChange={handleInputChange}
-                    required
-                />
-                <label htmlFor="ticker" className={fieldNameDesign}>
-                    Premium
-                </label>
-                <input
-                    type="number"
-                    className={inputFieldDesign}
-                    name="premium"
-                    id="premium"
-                    placeholder="Premium"
-                    value={formData.premium}  // Ensure the input is controlled
-                    onChange={handleInputChange}
-                    required
-                />
-                <label htmlFor="ticker" className={fieldNameDesign}>
-                    Open Price
-                </label>
-                <input
-                    type="number"
-                    className={inputFieldDesign}
-                    name="open_price"
-                    id="open_price"
-                    placeholder="Open Price"
-                    value={formData.open_price}  // Ensure the input is controlled
-                    onChange={handleInputChange}
-                    required
-                />
-                <label htmlFor="ticker" className={fieldNameDesign}>
-                    Open Date
-                </label>
-                <input
-                    type="date"
-                    className={inputFieldDesign}
-                    name="open_date"
-                    id="open_date"
-                    placeholder="Open Date"
-                    value={formData.open_date}  // Ensure the input is controlled
-                    onChange={handleInputChange}
-                    required
-                />
+    // This section contains the input fields for creating the positions
+    // The section is by default tucked, but expands to cover 25% of the screen width when the toggle is hit
+    // NEED TO MAKE A CHANGE TO THE CLASSNAME OF contract_type, SINCE THAT'S STILL USING BOOTSTRAP CSS
+    const inputFieldDesign = "flex justify-center text-center w-full rounded-md bg-gray-200 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500"
+    const fieldNameDesign = "block text-center text-sm font-medium text-gray-700"
+    const InputSection = ({ isInputVisible, toggleIsInputVisible }) => {
+        return (
+            <>
+                {/* Toggle Button - Always Visible */}
                 <button
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md"
-                    onClick={handleAddPosition}
+                    className={`fixed ${isInputVisible ? "right-1/4" : "right-0"} top-1/2 bg-blue-500 text-white p-2 rounded-l-md transform -translate-y-1/2`}
+                    onClick={toggleIsInputVisible}
                 >
-                    Add Position
+                    {isInputVisible ? "→" : "←"}
                 </button>
-            </form>
+        
+                {/* Input Panel */}
+                {isInputVisible && (
+                    <div className={`bg-gray-600 relative transition-all duration-300 ${isInputVisible ? "w-1/4" : "w-0"} flex flex-col h-screen items-center justify-center`}>
+                        <h2 className="text-white text-center text-2xl font-bold">Add New Position</h2>
+                        <form className="block w-full items-center gap-3 mt-4" onSubmit={handleAddPosition}>
+                            <label htmlFor="ticker" className={fieldNameDesign}>
+                                Ticker
+                            </label>
+                            <input
+                                type="text"
+                                className={inputFieldDesign}
+                                name="ticker"
+                                id="ticker"
+                                placeholder="Ticker"
+                                value={formData.ticker}
+                                onChange={handleInputChange}
+                                required
+                            />
+
+                            <label htmlFor="contract_type" className={fieldNameDesign}>
+                                Contract Type
+                            </label>
+                            <select
+                                className={inputFieldDesign}
+                                name="contract_type"
+                                value={formData.contract_type}
+                                onChange={handleInputChange}
+                                required
+                            >
+                                <option value="" disabled>Choose Contract Type</option>
+                                <option value="Call">Call</option>
+                                <option value="Put">Put</option>
+                            </select>
+
+                            <label htmlFor="quantity" className={fieldNameDesign}>
+                                Quantity
+                            </label>
+                            <input
+                                type="number"
+                                className={inputFieldDesign}
+                                name="quantity"
+                                id="quantity"
+                                placeholder="Quantity"
+                                value={formData.quantity}
+                                onChange={handleInputChange}
+                                required
+                            />
+
+                            <label htmlFor="strike_price" className={fieldNameDesign}>
+                                Strike Price
+                            </label>
+                            <input
+                                type="number"
+                                className={inputFieldDesign}
+                                name="strike_price"
+                                id="strike_price"
+                                placeholder="Strike Price"
+                                value={formData.strike_price}
+                                onChange={handleInputChange}
+                                required
+                            />
+
+                            <label htmlFor="expiration_date" className={fieldNameDesign}>
+                                Expiration Date
+                            </label>
+                            <input
+                                type="date"
+                                className={inputFieldDesign}
+                                name="expiration_date"
+                                id="expiration_date"
+                                value={formData.expiration_date}
+                                onChange={handleInputChange}
+                                required
+                            />
+
+                            <label htmlFor="premium" className={fieldNameDesign}>
+                                Premium
+                            </label>
+                            <input
+                                type="number"
+                                className={inputFieldDesign}
+                                name="premium"
+                                id="premium"
+                                placeholder="Premium"
+                                value={formData.premium}
+                                onChange={handleInputChange}
+                                required
+                            />
+
+                            <label htmlFor="open_price" className={fieldNameDesign}>
+                                Open Price
+                            </label>
+                            <input
+                                type="number"
+                                className={inputFieldDesign}
+                                name="open_price"
+                                id="open_price"
+                                placeholder="Open Price"
+                                value={formData.open_price}
+                                onChange={handleInputChange}
+                                required
+                            />
+
+                            <label htmlFor="open_date" className={fieldNameDesign}>
+                                Open Date
+                            </label>
+                            <input
+                                type="date"
+                                className={inputFieldDesign}
+                                name="open_date"
+                                id="open_date"
+                                value={formData.open_date}
+                                onChange={handleInputChange}
+                                required
+                            />
+
+                            <button
+                                className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md w-full"
+                                type="submit"
+                            >
+                                Add Position
+                            </button>
+                        </form>
+                    </div>
+                )}
+            </>
+          );
+    }
+
+    return (
+        <div className="h-screen flex flex-row transition-all duration-300">
+            {/* Table Section - Expands when InputSection is hidden */}
+            <TableSection isInputVisible={isInputVisible}></TableSection>
+
+            {/* Input Section - Hidden by default */}
+            <InputSection isInputVisible={isInputVisible} toggleIsInputVisible={toggleInputSection} />
         </div>
     );
 }
