@@ -50,21 +50,25 @@ There'll be an option to hide this, in which the InputSection just slides into t
 
 The inputs will be at the bottom, while the top will contain other stuff
 
-One main thing to have at the top is a jump-to section, which will let you jump to newly expired, active, or inactive table
+One main thing to have at the top is a jump-to section, which will let you jump to newly expired, active, or expired table
 
 
 TODOs:
-Make the input section only as wide as necessary, not a set width of 1/4(frontend)
-
-Switch all "inactive" terminology to "expired"(both)
+Change the formData's useState to instead be a useRef, since useState currently causes React to re-render whenever a change is made and isn't needed
 
 Add a "newly expired" section for contracts that expired since last time you opened app and also signs for "about to expire", etc(both)
 
 Add sorting, grouping, and searching by custom fields(ex: sort/group/search by ticker NVDA)(both)
 
+Make the input section only as wide as necessary, not a set width of 1/4(frontend)
+
+When adding expired contracts, it doesn't get added automatically due to the backend needing to fetch the price, which takes a while. Change it to show up automatically once it's added(will likely need async)
+
+Add a way to clone contracts to the inputs and also other mechanisms to make making multiple positions easier
+
 Add a price section for active contracts, which will query for the option's latest price only on first load or refresh(both)
 
-Add a profit section for both active and inactive positions. Inactive positions profit will be set using the premium, strike, and close price while active
+Add a profit section for both active and expired positions. Expired positions profit will be set using the premium, strike, and close price while active
 positions profit will require adding a query for the option's current price and then subtracting from the initial premium.(both)
 
 Look into making the operations async. Separation between frontend and backend, we can show things frontend and async do things in the backend, like delete from frontend then async delete from backend DB(backend)

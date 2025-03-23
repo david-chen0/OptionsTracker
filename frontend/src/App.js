@@ -29,14 +29,14 @@ function App() {
     // List corresponding to active positions
     const [activePositions, setActivePositions] = useState([]);
 
-    // List corresponding to inactive positions
-    const [inactivePositions, setInactivePositions] = useState([]);
+    // List corresponding to expired positions
+    const [expiredPositions, setExpiredPositions] = useState([]);
 
     // Form for the user to input their addPosition data
     const [formData, setFormData] = useState(defaultForm);
 
     // Used to track whether the InputSection is visible/extended out
-    const [isInputVisible, setIsInputVisible] = useState(false);
+    const [isInputVisible, setIsInputVisible] = useState(true);
 
     useEffect(() => {
         async function loadPositions() {
@@ -45,9 +45,9 @@ function App() {
                 const activeData = await fetchOptionsPositions(true);
                 setActivePositions(activeData);
                 
-                // Fetching and setting inactive data
-                const inactiveData = await fetchOptionsPositions(false);
-                setInactivePositions(inactiveData);
+                // Fetching and setting expired data
+                const expiredData = await fetchOptionsPositions(false);
+                setExpiredPositions(expiredData);
             } catch (error) {
                 console.error("Error fetching positions:", error);
             }
@@ -75,11 +75,11 @@ function App() {
             // verification should be done in backend rather than frontend
             const addPositionResponse = await addOptionsPosition(newPosition);
 
-            // Response from server on whether the newly added position is inactive
-            if (addPositionResponse["inactive"]) {
-                // Fetch the updated inactive positions list from the backend and set the table accordingly
-                const updatedInactivePositions = await fetchOptionsPositions(false);
-                setInactivePositions(updatedInactivePositions);
+            // Response from server on whether the newly added position is expired
+            if (addPositionResponse["expired"]) {
+                // Fetch the updated expired positions list from the backend and set the table accordingly
+                const updatedExpiredPositions = await fetchOptionsPositions(false);
+                setExpiredPositions(updatedExpiredPositions);
             } else {
                 // Fetch the updated active positions list from the backend and set the table accordingly
                 const updatedActivePositions = await fetchOptionsPositions(true);
@@ -105,8 +105,8 @@ function App() {
         const deletePositionResponse = await deleteOptionsPosition(position.position_id);
 
         // Delete the position from the corresponding table
-        if (deletePositionResponse["inactive"]) {
-            setInactivePositions(inactivePositions.filter((item, index) => item.position_id !== position.position_id));
+        if (deletePositionResponse["expired"]) {
+            setExpiredPositions(expiredPositions.filter((item, index) => item.position_id !== position.position_id));
         } else {
             setActivePositions(activePositions.filter((item, index) => item.position_id !== position.position_id));
         }
@@ -126,8 +126,8 @@ function App() {
         setIsInputVisible((prev) => !prev);
     };
 
-    // Table to display the positions for both active and inactive positions.
-    // This is to enforce that the active and inactive positions tables are identical.
+    // Table to display the positions for both active and expired positions.
+    // This is to enforce that the active and expired positions tables are identical.
     const PositionsTable = ({ positions, title }) => {
         return (
             <div className="w-full max-w-full mt-20 px-4">
@@ -184,14 +184,13 @@ function App() {
             <div className={`bg-gray-700 flex flex-col items-center justify-center transition-all duration-300 ${isInputVisible ? "w-3/4" : "w-full"}`}>
                 {/* List of the position tables */}
                 <PositionsTable positions={activePositions} title="Active Positions" />
-                <PositionsTable positions={inactivePositions} title="Inactive Positions" />
+                <PositionsTable positions={expiredPositions} title="Expired Positions" />
             </div>
         )
     };
 
     // This section contains the input fields for creating the positions
     // The section is by default tucked, but expands to cover 25% of the screen width when the toggle is hit
-    // NEED TO MAKE A CHANGE TO THE CLASSNAME OF contract_type, SINCE THAT'S STILL USING BOOTSTRAP CSS
     const inputFieldDesign = "flex justify-center text-center w-full rounded-md bg-gray-200 px-3 py-2 focus:outline-none focus:ring focus:ring-blue-500"
     const fieldNameDesign = "block text-center text-sm font-medium text-gray-700"
     const InputSection = ({ isInputVisible, toggleIsInputVisible }) => {

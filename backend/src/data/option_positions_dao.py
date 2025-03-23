@@ -142,13 +142,13 @@ def get_option_position(position_id: int) -> OptionsPosition:
         print(f"Encountered error {e}")
         raise e
 
-def get_positions(get_active: bool, get_inactive: bool) -> list:
+def get_positions(get_active: bool, get_expired: bool) -> list:
     """
     Returns all option positions based on the input arguments.
-    If get_active is true, then we'll add active positions to the return list. Same for inactive positions if get_inactive is true.
+    If get_active is true, then we'll add active positions to the return list. Same for expired positions if get_expired is true.
     The returned result will be ordered by expiration date
     """
-    if not get_active and not get_inactive:
+    if not get_active and not get_expired:
         return []
 
     rows = None
@@ -157,7 +157,7 @@ def get_positions(get_active: bool, get_inactive: bool) -> list:
         conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_READ_COMMITTED)
 
         conditional_statement = ""
-        if get_active != get_inactive:
+        if get_active != get_expired:
             conditional_statement += "WHERE is_expired = "
             conditional_statement += "false" if get_active else "true"
         

@@ -8,24 +8,23 @@ from src.util.options_position import *
 options_positions_api = Blueprint('options_positions_api', __name__)
 api_header = '/api/options_positions'
 
-# List of active and inactive OptionsPosition objects
+# List of active and expired OptionsPosition objects
 active_positions: list
-inactive_positions: list
+expired_positions: list
 
 # Initializes the options positions
 def initialize_options_positions():
     """
-    Initializes the active_positions and inactive_positions list with the positions from the DB
+    Initializes the active_positions and expired_positions lists with the positions from the DB
     """
     global active_positions
-    global inactive_positions
+    global expired_positions
 
     print("Initializing options positions...")
 
-    inactive_positions = get_positions(False, True)
+    expired_positions = get_positions(False, True)
     active_positions = get_positions(True, False)
 
-    # TODO: MAKE SURE THAT THE RETURNED RESULTS FROM PSQL IS ORDERED IN ASCENDING EXPIRATION DATE
     numNewlyExpiredPositions = 0
     for active_position in active_positions:
         # Break if the position is still active
@@ -44,10 +43,10 @@ def initialize_options_positions():
         active_position.closing_price = underlying_price
         
         # We then increment numNewlyExpiredPositions(which is how we decide how many items to pop later from active_positions) and
-        # then add to the back of inactive_positions. This still guarantees that inactive_positions is ordered by increasing
+        # then add to the back of expired_positions. This still guarantees that expired_positions is ordered by increasing
         # expiration_date
         numNewlyExpiredPositions += 1
-        inactive_positions.append(active_position)
+        expired_positions.append(active_position)
 
     for __ in range(numNewlyExpiredPositions):
         active_positions.pop(0)
@@ -62,14 +61,14 @@ def get_active_positions():
     # Probably just re-add that global list to represent the JSON object, might need a diff design with async
     return [position.__json__() for position in active_positions], 200
 
-# Gets the inactive options positions
-@options_positions_api.route(f'{api_header}/get_inactive_position', methods=['GET'])
-def get_inactive_positions():
+# Gets the expired options positions
+@options_positions_api.route(f'{api_header}/get_expired_position', methods=['GET'])
+def get_expired_positions():
     # TODO: This is pretty inefficient, think of a better way to do this
     # Probably just re-add that global list to represent the JSON object, might need a diff design with async
 
     # TODO: We can't just return a list of OptionsPosition objects, since they aren't JSON serializable
-    return [position.__json__() for position in inactive_positions], 200
+    return [position.__json__() for position in expired_positions], 200
 
 
 # POST methods
@@ -84,28 +83,27 @@ def add_position():
     new_position = create_options_position(data)
 
     # Checks if the position is expired
-    position_is_inactive = new_position.is_expired
-    if position_is_inactive:
-        # If expired, update the status and then add it to the inactive positions store
+    if new_position.is_expired:
+        # If expired, update the status and then add it to the expired positions store
         underlying_price = get_security_closing_price(new_position.ticker, new_position.expiration_date)
         new_position.update_position_at_maturity(underlying_price)
 
         position_id = add_option_position(new_position)
         new_position.update_position_id(position_id)
-        add_position_to_list(new_position, inactive_positions)
+        add_position_to_list(new_position, expired_positions)
     else:
         # Add to list if position is active
         position_id = add_option_position(new_position)
         new_position.update_position_id(position_id)
         add_position_to_list(new_position, active_positions)
     
-    return {'message': 'Position added successfully!', 'inactive': position_is_inactive}, 201
+    return {'message': 'Position added successfully!', 'expired': new_position.is_expired}, 201
 
 # Deletes an option position corresponding to the input position_id
 @options_positions_api.route(f'{api_header}/delete_position', methods=['POST'])
 def delete_position():
     global active_positions
-    global inactive_positions
+    global expired_positions
 
     data = request.json
     if not data:
@@ -115,7 +113,7 @@ def delete_position():
     is_expired = is_position_expired(position_id)
     
     # Finding the index of the position in our local store
-    position_list = inactive_positions if is_expired else active_positions
+    position_list = expired_positions if is_expired else active_positions
     idx = next((i for i, position in enumerate(position_list) if position.position_id == position_id), -1)
     if idx == -1:
         return {'error': 'Input position_id does not correspond to any existing position'}
@@ -124,4 +122,4 @@ def delete_position():
     # Deleting from the DB
     delete_option_position(position_id)
 
-    return {'message': 'Position deleted successfully!', 'inactive': is_expired}, 200
+    return {'message': 'Position deleted successfully!', 'expired': is_expired}, 200
