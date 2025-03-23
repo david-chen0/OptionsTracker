@@ -54,9 +54,11 @@ One main thing to have at the top is a jump-to section, which will let you jump 
 
 
 TODOs:
-Add a "newly expired" section for contracts that expired since last time you opened app and also signs for "about to expire", etc(both)
+Add sorting by custom fields(ex: sort/search by ticker NVDA)(frontend)
 
-Add sorting, grouping, and searching by custom fields(ex: sort/group/search by ticker NVDA)(both)
+Add searching by fields(ex: search by ticker NVDA or search by expiration date)(frontend)
+
+Add a "newly expired" section for contracts that expired since last time you opened app and also signs for "about to expire", etc(both)
 
 Make the input section only as wide as necessary, not a set width of 1/4(frontend)
 

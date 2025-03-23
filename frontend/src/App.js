@@ -156,7 +156,7 @@ function App() {
                                 <td>
                                     <button
                                         onClick={() => handleDelete(pos)}
-                                        className="text-red-500 hover:text-red-700 p-1"
+                                        className="text-white hover:text-red-500 p-1"
                                     >
                                         Delete
                                     </button>
