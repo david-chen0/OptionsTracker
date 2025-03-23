@@ -54,8 +54,6 @@ One main thing to have at the top is a jump-to section, which will let you jump 
 
 
 TODOs:
-Change the formData's useState to instead be a useRef, since useState currently causes React to re-render whenever a change is made and isn't needed
-
 Add a "newly expired" section for contracts that expired since last time you opened app and also signs for "about to expire", etc(both)
 
 Add sorting, grouping, and searching by custom fields(ex: sort/group/search by ticker NVDA)(both)

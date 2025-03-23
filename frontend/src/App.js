@@ -1,19 +1,8 @@
 import './index.css';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { addOptionsPosition, deleteOptionsPosition, fetchOptionsPositions } from "./api/optionsPositionsApi";
 
 function App() {
-    // Default form for the form to be reset to after AddPosition is called
-    const defaultForm = {
-        ticker: "",
-        contract_type: "",
-        quantity: "",
-        strike_price: "",
-        expiration_date: "",
-        premium: "",
-        open_price: "",
-        open_date: ""
-    }
     // List of all fields that must be filled out in the AddPosition form
     const requiredFields = [
         "ticker",
@@ -31,9 +20,9 @@ function App() {
 
     // List corresponding to expired positions
     const [expiredPositions, setExpiredPositions] = useState([]);
-
-    // Form for the user to input their addPosition data
-    const [formData, setFormData] = useState(defaultForm);
+    
+    // Object used to store all the refs corresponding to the form's input fields
+    const formRefs = useRef({});
 
     // Used to track whether the InputSection is visible/extended out
     const [isInputVisible, setIsInputVisible] = useState(true);
@@ -58,10 +47,20 @@ function App() {
     // Handles when the AddPosition button is hit
     const handleAddPosition = async () => {
         try {
-            const newPosition = { ...formData };
+            // const newPosition = { ...formData };
+            const newPosition = {
+                ticker: formRefs.current.ticker.value,
+                contract_type: formRefs.current.contract_type.value,
+                quantity: formRefs.current.quantity.value,
+                strike_price: formRefs.current.strike_price.value,
+                expiration_date: formRefs.current.expiration_date.value,
+                premium: formRefs.current.premium.value,
+                open_price: formRefs.current.open_price.value,
+                open_date: formRefs.current.open_date.value
+            };
 
             // Checking to make sure all fields are filled out
-            const missingFields = requiredFields.filter((field) => !formData[field]);
+            const missingFields = requiredFields.filter((field) => !formRefs.current[field]);
             if (missingFields.length > 0) {
                 alert(`Please fill out all fields. Missing: ${missingFields.join(", ")}`);
                 return;
@@ -87,7 +86,9 @@ function App() {
             }
 
             // Resetting the form to be the default form
-            setFormData(defaultForm);
+            for (let field of requiredFields) {
+                formRefs.current[field].value = "";
+            }
         } catch (error) {
             console.error("Error adding position:", error);
         }
@@ -110,15 +111,6 @@ function App() {
         } else {
             setActivePositions(activePositions.filter((item, index) => item.position_id !== position.position_id));
         }
-    };
-
-    // Handles changes to the inputs
-    const handleInputChange = (event) => {
-        const { name, value } = event.target;
-        setFormData((prev) => ({
-          ...prev,
-          [name]: event.target.type === "number" ? Number(value) : value,
-        }));
     };
 
     // Method to flip the boolean value of the isVisible variable
@@ -218,8 +210,7 @@ function App() {
                                 name="ticker"
                                 id="ticker"
                                 placeholder="Ticker"
-                                value={formData.ticker}
-                                onChange={handleInputChange}
+                                ref={(e) => (formRefs.current.ticker = e)}
                                 required
                             />
 
@@ -229,8 +220,8 @@ function App() {
                             <select
                                 className={inputFieldDesign}
                                 name="contract_type"
-                                value={formData.contract_type}
-                                onChange={handleInputChange}
+                                defaultValue=""
+                                ref={(e) => (formRefs.current.contract_type = e)}
                                 required
                             >
                                 <option value="" disabled>Choose Contract Type</option>
@@ -247,8 +238,7 @@ function App() {
                                 name="quantity"
                                 id="quantity"
                                 placeholder="Quantity"
-                                value={formData.quantity}
-                                onChange={handleInputChange}
+                                ref={(e) => (formRefs.current.quantity = e)}
                                 required
                             />
 
@@ -261,8 +251,7 @@ function App() {
                                 name="strike_price"
                                 id="strike_price"
                                 placeholder="Strike Price"
-                                value={formData.strike_price}
-                                onChange={handleInputChange}
+                                ref={(e) => (formRefs.current.strike_price = e)}
                                 required
                             />
 
@@ -274,8 +263,7 @@ function App() {
                                 className={inputFieldDesign}
                                 name="expiration_date"
                                 id="expiration_date"
-                                value={formData.expiration_date}
-                                onChange={handleInputChange}
+                                ref={(e) => (formRefs.current.expiration_date = e)}
                                 required
                             />
 
@@ -288,8 +276,7 @@ function App() {
                                 name="premium"
                                 id="premium"
                                 placeholder="Premium"
-                                value={formData.premium}
-                                onChange={handleInputChange}
+                                ref={(e) => (formRefs.current.premium = e)}
                                 required
                             />
 
@@ -302,8 +289,7 @@ function App() {
                                 name="open_price"
                                 id="open_price"
                                 placeholder="Open Price"
-                                value={formData.open_price}
-                                onChange={handleInputChange}
+                                ref={(e) => (formRefs.current.open_price = e)}
                                 required
                             />
 
@@ -315,8 +301,7 @@ function App() {
                                 className={inputFieldDesign}
                                 name="open_date"
                                 id="open_date"
-                                value={formData.open_date}
-                                onChange={handleInputChange}
+                                ref={(e) => (formRefs.current.open_date = e)}
                                 required
                             />
 
