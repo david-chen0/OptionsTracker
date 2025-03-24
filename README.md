@@ -6,9 +6,8 @@ postcss(npm)
 autoprefixer(npm)
 framer-motion(npm)
 
-if tailwindcss fails again, you can re-install by removing it via npm, removing output.css, then running
+To refresh TailwindCSS, run(in the frontend dir):
 npx @tailwindcss/cli -i ./src/index.css -o ./src/output.css --watch
-in the frontend dir
 
 
 To start webpage/server(for now):
@@ -54,8 +53,6 @@ One main thing to have at the top is a jump-to section, which will let you jump 
 
 
 TODOs:
-Move around some logic in the App.js file to clean it up(helper methods and util files)
-
 Add searching by fields(ex: search by ticker NVDA or search by expiration date)(frontend)
 
 Add a "newly expired" section for contracts that expired since last time you opened app and also signs for "about to expire", etc(both)
