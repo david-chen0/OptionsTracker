@@ -54,7 +54,7 @@ One main thing to have at the top is a jump-to section, which will let you jump 
 
 
 TODOs:
-Add sorting by custom fields(ex: sort/search by ticker NVDA)(frontend)
+Move around some logic in the App.js file to clean it up(helper methods and util files)
 
 Add searching by fields(ex: search by ticker NVDA or search by expiration date)(frontend)
 

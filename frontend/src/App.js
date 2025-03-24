@@ -3,8 +3,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { addOptionsPosition, deleteOptionsPosition, fetchOptionsPositions } from "./api/optionsPositionsApi";
 
 function App() {
-    // List of all fields that must be filled out in the AddPosition form
-    const requiredFields = [
+    // List of all fields in the AddPosition form
+    const addPositionFields = [
         "ticker",
         "contract_type",
         "quantity",
@@ -20,6 +20,16 @@ function App() {
 
     // List corresponding to expired positions
     const [expiredPositions, setExpiredPositions] = useState([]);
+
+    // Names for the tables
+    const activeTableName = "Active Positions";
+    const expiredTableName = "Expired Positions";
+
+    // State mapping from table name to the sort key and direction of that table
+    const [tablesSortConfig, setTablesSortConfig] = useState({
+        [activeTableName]: { key: "expiration_date", direction: "asc" },
+        [expiredTableName]: { key: "expiration_date", direction: "asc" }
+    });
     
     // Object used to store all the refs corresponding to the form's input fields
     const formRefs = useRef({});
@@ -60,7 +70,7 @@ function App() {
             };
 
             // Checking to make sure all fields are filled out
-            const missingFields = requiredFields.filter((field) => !formRefs.current[field]);
+            const missingFields = addPositionFields.filter((field) => !formRefs.current[field]);
             if (missingFields.length > 0) {
                 alert(`Please fill out all fields. Missing: ${missingFields.join(", ")}`);
                 return;
@@ -86,7 +96,7 @@ function App() {
             }
 
             // Resetting the form to be the default form
-            for (let field of requiredFields) {
+            for (let field of addPositionFields) {
                 formRefs.current[field].value = "";
             }
         } catch (error) {
@@ -113,6 +123,54 @@ function App() {
         }
     };
 
+    // Helper method for sorting the table
+    const compareValues = (a, b, key, direction) => {
+        if (!addPositionFields.includes(key)) {
+            console.error("Trying to sort by unknown key " + key);
+        }
+
+        let valA = a[key];
+        let valB = b[key];
+
+        if (key === "expiration_date" || key === "open_date") {
+            valA = new Date(valA);
+            valB = new Date(valB);
+        }
+
+        if (typeof valA === "number") {
+            return direction === "asc" ? valA - valB : valB - valA;
+        } else if (typeof valA === "string") {
+            return direction === "asc"
+                ? valA.localeCompare(valB)
+                : valB.localeCompare(valA);
+        } else {
+            return direction === "asc" ? valA - valB : valB - valA;
+        }
+    };
+
+    // Method to handle sorting the input table
+    const sortPositions = (tableName, field) => {
+        setTablesSortConfig((prevState) => {
+            const currentSortConfig = prevState[tableName];
+            const newDirection = currentSortConfig.key === field && currentSortConfig.direction === "asc" ? "desc" : "asc";
+
+            if (tableName === activeTableName) {
+                setActivePositions([...activePositions].sort((a, b) => 
+                    compareValues(a, b, field, newDirection)
+                ));
+            } else if (tableName === expiredTableName) {
+                setExpiredPositions([...expiredPositions].sort((a, b) => 
+                    compareValues(a, b, field, newDirection)
+                ));
+            }
+            
+            return {
+                ...prevState,
+                [tableName]: { key: field, direction: newDirection }
+            };
+        });
+    };
+
     // Method to flip the boolean value of the isVisible variable
     const toggleInputSection = () => {
         setIsInputVisible((prev) => !prev);
@@ -127,16 +185,36 @@ function App() {
                 <table className="w-full border border-gray-300">
                     <thead>
                         <tr>
-                            <th>Ticker</th>
-                            <th>Type</th>
-                            <th>Quantity</th>
-                            <th>Strike Price</th>
-                            <th>Expiration Date</th>
-                            <th>Premium</th>
-                            <th>Open Price</th>
-                            <th>Open Date</th>
-                            <th>Position Status</th>
-                            <th>Close Price</th>
+                            {/* This mapping creates the sorting buttons next to each header */}
+                            {[
+                                { key: "ticker", label: "Ticker" },
+                                { key: "contract_type", label: "Type" },
+                                { key: "quantity", label: "Quantity" },
+                                { key: "strike_price", label: "Strike Price" },
+                                { key: "expiration_date", label: "Expiration Date" },
+                                { key: "premium", label: "Premium" },
+                                { key: "open_price", label: "Open Price" },
+                                { key: "open_date", label: "Open Date" },
+                                { key: "position_status", label: "Position Status" },
+                                { key: "close_price", label: "Close Price" },
+                            ].map(({ key, label }) => (
+                                <th key={key} className="px-4 py-2 text-white">
+                                    <div className="flex items-center">
+                                        {label}
+                                        <button
+                                            onClick={() => sortPositions(title, key)}
+                                            className="ml-2 text-xs"
+                                        >
+                                            <span className={tablesSortConfig[title].key === key && tablesSortConfig[title].direction === "asc" ? "text-amber-400" : "text-gray-400"}>
+                                                ▲
+                                            </span>
+                                            <span className={tablesSortConfig[title].key === key && tablesSortConfig[title].direction === "desc" ? "text-amber-400" : "text-gray-400"}>
+                                                ▼
+                                            </span>
+                                        </button>
+                                    </div>
+                                </th>
+                            ))}
                             <th>Actions</th> {/* New column for delete button */}
                         </tr>
                     </thead>
@@ -173,10 +251,10 @@ function App() {
     // This section contains with all the tables
     const TableSection = ({ isInputVisible }) => {
         return (
-            <div className={`bg-gray-700 flex flex-col items-center justify-center transition-all duration-300 ${isInputVisible ? "w-3/4" : "w-full"}`}>
+            <div className={`bg-gray-700 flex flex-col items-center justify-center transition-all duration-300 ${isInputVisible ? "w-5/6" : "w-full"}`}>
                 {/* List of the position tables */}
-                <PositionsTable positions={activePositions} title="Active Positions" />
-                <PositionsTable positions={expiredPositions} title="Expired Positions" />
+                <PositionsTable positions={activePositions} title={activeTableName} />
+                <PositionsTable positions={expiredPositions} title={expiredTableName} />
             </div>
         )
     };
@@ -190,7 +268,7 @@ function App() {
             <>
                 {/* Toggle Button - Always Visible */}
                 <button
-                    className={`fixed ${isInputVisible ? "right-1/4" : "right-0"} top-1/2 bg-blue-500 text-white p-2 rounded-l-md transform -translate-y-1/2`}
+                    className={`fixed ${isInputVisible ? "right-1/6" : "right-0"} top-1/2 bg-blue-500 text-white p-2 rounded-l-md transform -translate-y-1/2`}
                     onClick={toggleIsInputVisible}
                 >
                     {isInputVisible ? "→" : "←"}
@@ -198,7 +276,7 @@ function App() {
         
                 {/* Input Panel */}
                 {isInputVisible && (
-                    <div className={`bg-gray-600 relative transition-all duration-300 ${isInputVisible ? "w-1/4" : "w-0"} flex flex-col h-screen items-center justify-center`}>
+                    <div className={`bg-gray-600 relative transition-all duration-300 ${isInputVisible ? "w-1/6" : "w-0"} flex flex-col h-screen items-center justify-center`}>
                         <h2 className="text-white text-center text-2xl font-bold">Add New Position</h2>
                         <form className="block w-full items-center gap-3 mt-4" onSubmit={handleAddPosition}>
                             <label htmlFor="ticker" className={fieldNameDesign}>
