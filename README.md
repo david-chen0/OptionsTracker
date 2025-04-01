@@ -43,7 +43,7 @@ Top will be newly expired section(once we implement it, skip for now) followed b
 
 
 InputSection:
-This will take up just about 25% of the screen width
+This will take up just about 1/6th of the screen width
 
 There'll be an option to hide this, in which the InputSection just slides into to right and disappears with a tiny tab/bar that can be clicked to pull it back out
 
@@ -53,20 +53,19 @@ One main thing to have at the top is a jump-to section, which will let you jump 
 
 
 TODOs:
+Move PSQL schema to a separate file and setup the migration for PSQL schema(ex: flyway migration)
+
+Add a profit section for expired positions, which will be set using the premium, strike, and close price(both)
+
+Add a price section for active contracts, which will query for the option's latest price only on first load or refresh(both)
+
 Add searching by fields(ex: search by ticker NVDA or search by expiration date)(frontend)
 
 Add a "newly expired" section for contracts that expired since last time you opened app and also signs for "about to expire", etc(both)
 
-Make the input section only as wide as necessary, not a set width of 1/4(frontend)
-
-When adding expired contracts, it doesn't get added automatically due to the backend needing to fetch the price, which takes a while. Change it to show up automatically once it's added(will likely need async)
+Make the input section only as wide as necessary, not a set width of 1/6(frontend)
 
 Add a way to clone contracts to the inputs and also other mechanisms to make making multiple positions easier
-
-Add a price section for active contracts, which will query for the option's latest price only on first load or refresh(both)
-
-Add a profit section for both active and expired positions. Expired positions profit will be set using the premium, strike, and close price while active
-positions profit will require adding a query for the option's current price and then subtracting from the initial premium.(both)
 
 Look into making the operations async. Separation between frontend and backend, we can show things frontend and async do things in the backend, like delete from frontend then async delete from backend DB(backend)
 

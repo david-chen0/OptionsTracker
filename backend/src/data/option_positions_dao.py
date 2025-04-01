@@ -2,6 +2,7 @@ import os
 import psycopg2
 from dotenv import load_dotenv
 from src.util.options_position import *
+from src.schema.create_and_migrate_schema import apply_migrations
 
 # Load environment variables from .env file
 load_dotenv()
@@ -27,9 +28,6 @@ print("Connected to PostgreSQL!")
 # We use a PostgreSQL built-in sequence to keep track of the position_id of the latest created position. This auto-increments
 # and stores just a single value.
 CURRENT_POSITION_ID_SEQUENCE = "current_position_id"
-cursor.execute(f"""CREATE SEQUENCE IF NOT EXISTS {CURRENT_POSITION_ID_SEQUENCE} START WITH 1 INCREMENT BY 1;""")
-conn.commit()
-
 
 # option_positions Table
 # This is our main table where we will store our option positions
@@ -37,32 +35,9 @@ OPTION_POSITIONS_TABLE = "option_positions"
 option_positions_fields = """position_id, ticker, contract_type, quantity, strike_price, expiration_date,
                             is_expired, premium, open_price, open_date, position_status, close_price
 """
-cursor.execute(f"""
-CREATE TABLE IF NOT EXISTS {OPTION_POSITIONS_TABLE} (
-    position_id INT PRIMARY KEY,
-    ticker TEXT NOT NULL,
-    contract_type TEXT NOT NULL,
-    quantity INT NOT NULL,
-    strike_price NUMERIC(10, 2) NOT NULL,
-    expiration_date DATE NOT NULL,
-    is_expired BOOLEAN NOT NULL,
-    premium NUMERIC(10, 2) NOT NULL,
-    open_price NUMERIC(10, 2) NOT NULL,
-    open_date DATE NOT NULL,
-    position_status TEXT NOT NULL,
-    close_price NUMERIC(10, 2)
-);
-""")
-conn.commit()
-# Indexes for the option_positions table
-create_indexes_sql = """
-    CREATE INDEX IF NOT EXISTS idx_expiration_date ON option_positions (expiration_date);
-    CREATE INDEX IF NOT EXISTS idx_is_expired_true ON option_positions (position_id) WHERE is_expired = TRUE;
-    CREATE INDEX IF NOT EXISTS idx_is_expired_false ON option_positions (position_id) WHERE is_expired = FALSE;
-"""
 
-cursor.execute(create_indexes_sql)
-conn.commit()
+# Applying the initial schema and migrations
+apply_migrations(conn, cursor)
 
 
 # Helper methods
