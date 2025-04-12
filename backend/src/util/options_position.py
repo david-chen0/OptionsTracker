@@ -4,14 +4,21 @@ from src.data.data_fetcher import *
 
 class ContractType(Enum):
     """
-    Represents the possible contract types
+    Represents the contract type of the position
     """
     CALL = "call"
     PUT = "put"
 
+class TradeDirection(Enum):
+    """
+    Represents the trade direction of the position
+    """
+    LONG = "long"
+    SHORT = "short"
+
 class PositionStatus(Enum):
     """
-    Represents the possible statuses of our position
+    Represents the current status of the position
     """
     OPEN = "open"
     CLOSED = "closed"
@@ -27,6 +34,7 @@ class OptionsPosition:
         ticker (str): The ticker symbol(ex: AAPL) for the underlying security
         contract_type (ContractType): The type of contract
         quantity (int): The number of contracts opened
+        trade_direction (TradeDirection): The direction of the position
         strike_price (float): The strike price of the contracts
         expiration_date (date): The expiration date of the contracts, represented as YYYY-MM-DD
         is_expired (bool): Represents whether the position is expired
@@ -42,6 +50,7 @@ class OptionsPosition:
     ticker: str
     contract_type: ContractType
     quantity: int
+    trade_direction: TradeDirection
     strike_price: float
     expiration_date: date
     is_expired: bool
@@ -58,6 +67,7 @@ class OptionsPosition:
         ticker: str,
         contract_type: ContractType,
         quantity: int,
+        trade_direction: TradeDirection,
         strike_price: float,
         expiration_date: date,
         premium: float,
@@ -67,14 +77,21 @@ class OptionsPosition:
         close_price: float = -1,
         profit: float = -1
     ):
-        # check open date before expiration date
-        
-        # check positive premium
+        # Pre-checks to make sure the arguments make sense
+        if not open_date < expiration_date:
+            raise Exception("The position's open date must be before the expiration date")
+        if not premium > 0:
+            raise Exception("The option premium must be positive")
+        if not quantity > 0:
+            raise Exception("Quantity must be positive")
+        # check ticker exists
+        # check option(for ticker and expiration date) exists
 
         self.position_id = position_id
         self.ticker = ticker.upper()
         self.contract_type = contract_type
         self.quantity = quantity
+        self.trade_direction = trade_direction
         self.strike_price = strike_price
         self.expiration_date = expiration_date
         self.is_expired = datetime.now().date() > expiration_date
@@ -100,6 +117,7 @@ class OptionsPosition:
             "ticker": self.ticker,
             "contract_type": self.contract_type.name,
             "quantity": self.quantity,
+            "trade_direction": self.trade_direction.name,
             "strike_price": self.strike_price,
             "expiration_date": self.expiration_date.isoformat(),    
             "is_expired": self.is_expired,
@@ -148,7 +166,7 @@ class OptionsPosition:
         else:
             raise ValueError(f"Unsupported contract type: {self.contract_type}")
         
-        return self.quantity * profit_per_contract * 100
+        return self.quantity * profit_per_contract * 100 * (1 if self.trade_direction == TradeDirection.LONG else -1)
 
 # TODO: I just slapped this in here since I can't put it into common, since it'll create a circular dependency
 # figure out where to put it
@@ -173,6 +191,7 @@ def create_options_position(inputs: dict) -> OptionsPosition:
     # String checks are because conversions from JavaScript causes many variables to be stored as strings
     contract_type = inputs["contract_type"].upper()
     quantity = inputs["quantity"]
+    trade_direction = inputs["trade_direction"].upper()
     strike_price = inputs["strike_price"]
     premium = inputs["premium"]
     open_price = inputs["open_price"]
@@ -182,6 +201,9 @@ def create_options_position(inputs: dict) -> OptionsPosition:
 
     if isinstance(quantity, str):
         quantity = float(quantity)
+
+    if isinstance(trade_direction, str):
+        trade_direction = TradeDirection[trade_direction]
 
     if isinstance(strike_price, str):
         strike_price = float(strike_price)
@@ -197,6 +219,7 @@ def create_options_position(inputs: dict) -> OptionsPosition:
         inputs["ticker"],
         contract_type,
         quantity,
+        trade_direction,
         strike_price,
         expiration_date,
         premium,

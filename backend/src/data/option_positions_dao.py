@@ -32,7 +32,7 @@ CURRENT_POSITION_ID_SEQUENCE = "current_position_id"
 # option_positions Table
 # This is our main table where we will store our option positions
 OPTION_POSITIONS_TABLE = "option_positions"
-option_positions_fields = """position_id, ticker, contract_type, quantity, strike_price, expiration_date,
+option_positions_fields = """position_id, ticker, contract_type, quantity, trade_direction, strike_price, expiration_date,
                             is_expired, premium, open_price, open_date, position_status, close_price, profit
 """
 
@@ -58,14 +58,15 @@ def row_to_options_position(row: dict) -> OptionsPosition:
         ticker=row[1],
         contract_type=ContractType(row[2]),
         quantity=row[3],
-        strike_price=float(row[4]),
-        expiration_date=row[5],
-        premium=float(row[7]),
-        open_price=float(row[8]),
-        open_date=row[9],
-        position_status=PositionStatus(row[10]),
-        close_price=float(row[11]) if row[11] is not None else None,
-        profit=float(row[12]) if row[12] is not None else None
+        trade_direction=TradeDirection(row[4]),
+        strike_price=float(row[5]),
+        expiration_date=row[6],
+        premium=float(row[8]),
+        open_price=float(row[9]),
+        open_date=row[10],
+        position_status=PositionStatus(row[11]),
+        close_price=float(row[12]) if row[12] is not None else None,
+        profit=float(row[13]) if row[13] is not None else None
     )
 
 
@@ -169,12 +170,13 @@ def add_option_position(position: OptionsPosition) -> int:
         # Now insert the position with the position_id into the option_positions table
         cursor.execute(f"""
             INSERT INTO {OPTION_POSITIONS_TABLE} ({option_positions_fields})
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
         """, (
             position_id,
             position.ticker,
             position.contract_type.value,
             position.quantity,
+            position.trade_direction.value,
             position.strike_price,
             position.expiration_date,
             position.is_expired,
@@ -206,6 +208,7 @@ def update_option_position(position_id: int, updates: dict):
     # Fields that we allow the user to update
     valid_fields = {
         "quantity",
+        "trade_direction",
         "premium"
     }
 

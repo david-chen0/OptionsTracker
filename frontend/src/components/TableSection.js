@@ -119,6 +119,7 @@ const TableSection = ({
             { key: "ticker", label: "Ticker" },
             { key: "contract_type", label: "Type" },
             { key: "quantity", label: "Quantity" },
+            { key: "trade_direction", label: "Trade Direction" },
             { key: "strike_price", label: "Strike Price" },
             { key: "expiration_date", label: "Expiration Date" },
             { key: "premium", label: "Premium" },

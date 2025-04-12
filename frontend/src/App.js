@@ -11,6 +11,7 @@ function App() {
         "ticker",
         "contract_type",
         "quantity",
+        "trade_direction",
         "strike_price",
         "expiration_date",
         "premium",

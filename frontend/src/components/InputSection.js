@@ -12,6 +12,9 @@ const InputSection = ({
     // Object used to store all the refs corresponding to the form's input fields
     const formRefs = useRef({});
 
+    // Default value for the open date is the current date
+    const defaultOpenDateValue = new Date().toISOString().split('T')[0];
+
     // Handles when the AddPosition button is hit
     const handleAddPosition = async (event) => {
         event.preventDefault(); // Stops the page from refreshing
@@ -20,6 +23,7 @@ const InputSection = ({
                 ticker: formRefs.current.ticker.value,
                 contract_type: formRefs.current.contract_type.value,
                 quantity: formRefs.current.quantity.value,
+                trade_direction: formRefs.current.trade_direction.value,
                 strike_price: formRefs.current.strike_price.value,
                 expiration_date: formRefs.current.expiration_date.value,
                 premium: formRefs.current.premium.value,
@@ -50,9 +54,13 @@ const InputSection = ({
             }
 
             // Resetting the form to be the default form
+            // maybe just delete the formRefs instead of resetting every value?
             for (let field of addPositionFields) {
                 formRefs.current[field].value = "";
             }
+
+            // Custom reset values
+            formRefs.current["open_date"].value = defaultOpenDateValue;
         } catch (error) {
             console.error("Error adding position:", error);
         }
@@ -118,6 +126,21 @@ const InputSection = ({
                             required
                         />
 
+                        <label htmlFor="trade_direction" className={fieldNameDesign}>
+                            Trade Direction
+                        </label>
+                        <select
+                            className={inputFieldDesign}
+                            name="trade_direction"
+                            defaultValue=""
+                            ref={(e) => (formRefs.current.trade_direction = e)}
+                            required
+                        >
+                            <option value="" disabled>Choose Trade Direction</option>
+                            <option value="Long">Long</option>
+                            <option value="Short">Short</option>
+                        </select>
+
                         <label htmlFor="strike_price" className={fieldNameDesign}>
                             Strike Price
                         </label>
@@ -177,6 +200,7 @@ const InputSection = ({
                             className={inputFieldDesign}
                             name="open_date"
                             id="open_date"
+                            defaultValue={defaultOpenDateValue} // Default is current date
                             ref={(e) => (formRefs.current.open_date = e)}
                             required
                         />

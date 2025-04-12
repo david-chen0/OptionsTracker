@@ -53,11 +53,15 @@ One main thing to have at the top is a jump-to section, which will let you jump 
 
 
 TODOs:
-Add a field for indicating whether the contract is long or short rather than relying on the user to input positive or negative number
+Format the dollar fields(ex: open_price, profit, etc) to be prefixed with $ and have commas separating amounts
 
 Add a price section for active contracts, which will query for the option's latest price only on first load or refresh(both)
 
+Add financial data(ex: implied volatility, delta, etc)
+
 Add searching by fields(ex: search by ticker NVDA or search by expiration date)(frontend)
+
+Allow users to update fields(ex: quantity, premium)
 
 Add a "newly expired" section for contracts that expired since last time you opened app and also signs for "about to expire", etc(both)
 
