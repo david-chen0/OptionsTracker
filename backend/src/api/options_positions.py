@@ -82,19 +82,14 @@ def add_position():
     # Create a new OptionsPositions instance
     new_position = create_options_position(data)
 
+    position_id = add_option_position(new_position)
+    new_position.update_position_id(position_id)
     # Checks if the position is expired
     if new_position.is_expired:
         # If expired, update the status and then add it to the expired positions store
-        underlying_price = get_security_closing_price(new_position.ticker, new_position.expiration_date)
-        new_position.update_position_at_maturity(underlying_price)
-
-        position_id = add_option_position(new_position)
-        new_position.update_position_id(position_id)
         add_position_to_list(new_position, expired_positions)
     else:
         # Add to list if position is active
-        position_id = add_option_position(new_position)
-        new_position.update_position_id(position_id)
         add_position_to_list(new_position, active_positions)
     
     return {'message': 'Position added successfully!', 'expired': new_position.is_expired}, 201

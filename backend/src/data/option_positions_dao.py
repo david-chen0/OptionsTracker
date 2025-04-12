@@ -33,7 +33,7 @@ CURRENT_POSITION_ID_SEQUENCE = "current_position_id"
 # This is our main table where we will store our option positions
 OPTION_POSITIONS_TABLE = "option_positions"
 option_positions_fields = """position_id, ticker, contract_type, quantity, strike_price, expiration_date,
-                            is_expired, premium, open_price, open_date, position_status, close_price
+                            is_expired, premium, open_price, open_date, position_status, close_price, profit
 """
 
 # Applying the initial schema and migrations
@@ -64,7 +64,8 @@ def row_to_options_position(row: dict) -> OptionsPosition:
         open_price=float(row[8]),
         open_date=row[9],
         position_status=PositionStatus(row[10]),
-        close_price=float(row[11]) if row[11] is not None else None
+        close_price=float(row[11]) if row[11] is not None else None,
+        profit=float(row[12]) if row[12] is not None else None
     )
 
 
@@ -168,7 +169,7 @@ def add_option_position(position: OptionsPosition) -> int:
         # Now insert the position with the position_id into the option_positions table
         cursor.execute(f"""
             INSERT INTO {OPTION_POSITIONS_TABLE} ({option_positions_fields})
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
         """, (
             position_id,
             position.ticker,
@@ -181,7 +182,8 @@ def add_option_position(position: OptionsPosition) -> int:
             position.open_price,
             position.open_date,
             position.position_status.value,
-            position.close_price
+            position.close_price,
+            position.profit
         ))
 
         # Commit transaction
@@ -204,10 +206,7 @@ def update_option_position(position_id: int, updates: dict):
     # Fields that we allow the user to update
     valid_fields = {
         "quantity",
-        "is_exipred",
-        "premium",
-        "position_status",
-        "close_price"
+        "premium"
     }
 
     # Making sure that no field is duplicated and all fields are valid for updates

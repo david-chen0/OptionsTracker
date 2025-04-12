@@ -53,9 +53,7 @@ One main thing to have at the top is a jump-to section, which will let you jump 
 
 
 TODOs:
-Move PSQL schema to a separate file and setup the migration for PSQL schema(ex: flyway migration)
-
-Add a profit section for expired positions, which will be set using the premium, strike, and close price(both)
+Add a field for indicating whether the contract is long or short rather than relying on the user to input positive or negative number
 
 Add a price section for active contracts, which will query for the option's latest price only on first load or refresh(both)
 

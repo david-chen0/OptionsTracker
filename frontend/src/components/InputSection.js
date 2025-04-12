@@ -34,10 +34,6 @@ const InputSection = ({
                 return;
             }
 
-            // Default values since we don't allow user input for these fields
-            newPosition["position_status"] = "Open";
-            newPosition["close_price"] = -1;
-
             // TODO: Add verifications on the fields, ex: expiration date is a date, strike price is a number with at most 2 decimals, and more
             // verification should be done in backend rather than frontend
             const addPositionResponse = await addOptionsPosition(newPosition);

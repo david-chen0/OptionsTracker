@@ -1,5 +1,6 @@
 from datetime import date, datetime
 from enum import Enum
+from src.data.data_fetcher import *
 
 class ContractType(Enum):
     """
@@ -33,7 +34,8 @@ class OptionsPosition:
         open_price (float): The price of the underlying security when the contract was opened
         open_date (date): The date that the contract was opened, represented as YYYY-MM-DD
         position_status (PositionStatus): The status of the options position
-        close_price (float): The price of the underlying security when the contract closed, set to -1 when the contract is still open
+        close_price (float): The price of the underlying security when the contract closed, set to -1 when the contract is still active
+        profit (float): The total profit from this position, set to -1 when the contract is still active(change when we support current prices)
     """
 
     position_id: int
@@ -48,11 +50,7 @@ class OptionsPosition:
     open_date: date
     position_status: PositionStatus
     close_price: float
-
-    # Unimplemented for now, uncomment when you come around to implementing this
-    # ex: sold call on X, strike price 95, premium 1, expired at 100. profit = 1 + 95 - 100 = -4
-    # we could also not store this as a value but instead have it calculated with a method
-    # profit: float
+    profit: float
 
     def __init__(
         self,
@@ -66,7 +64,8 @@ class OptionsPosition:
         open_price: float,
         open_date: date,
         position_status: PositionStatus = PositionStatus.OPEN,
-        close_price: float = -1
+        close_price: float = -1,
+        profit: float = -1
     ):
         # check open date before expiration date
         
@@ -82,9 +81,16 @@ class OptionsPosition:
         self.premium = premium
         self.open_price = open_price
         self.open_date = open_date
-        self.position_status = position_status
-        self.close_price = close_price
-    
+
+        # Sets accurate profit for expired positions, otherwise sets profit to -1(change when we support current prices)
+        if self.is_expired and close_price == -1:
+            underlying_price = get_security_closing_price(ticker, expiration_date)
+            self.update_position_at_maturity(underlying_price)
+        else:
+            self.position_status = position_status
+            self.close_price = close_price
+            self.profit = profit
+
     def __json__(self) -> dict:
         """
         Converts current options position to a dictionary format so that it can be saved to JSON format
@@ -101,7 +107,8 @@ class OptionsPosition:
             "open_price": self.open_price,
             "open_date": self.open_date.isoformat(),
             "position_status": self.position_status.name,
-            "close_price": self.close_price
+            "close_price": self.close_price,
+            "profit": self.profit
         }
     
     def update_position_id(self, position_id: int):
@@ -122,6 +129,7 @@ class OptionsPosition:
         else:
             self.position_status = PositionStatus.EXPIRED
         self.close_price = underlying_expiration_price
+        self.profit = self.calculate_profit()
     
     def calculate_profit(self) -> float:
         """
@@ -131,16 +139,16 @@ class OptionsPosition:
             raise NotImplementedError("Position value has not been implemented for open positions yet")
         
         price_diff = self.close_price - self.strike_price
-        profit_per_contract = -self.premium
+        profit_per_contract = -1 * self.premium
 
         if self.contract_type == ContractType.CALL:
             profit_per_contract += max(price_diff, 0)
         elif self.contract_type == ContractType.PUT:
-            profit_per_contract += max(-price_diff, 0)
+            profit_per_contract += max(-1 * price_diff, 0)
         else:
             raise ValueError(f"Unsupported contract type: {self.contract_type}")
         
-        return self.quantity * profit_per_contract
+        return self.quantity * profit_per_contract * 100
 
 # TODO: I just slapped this in here since I can't put it into common, since it'll create a circular dependency
 # figure out where to put it
@@ -166,9 +174,8 @@ def create_options_position(inputs: dict) -> OptionsPosition:
     contract_type = inputs["contract_type"].upper()
     quantity = inputs["quantity"]
     strike_price = inputs["strike_price"]
-    position_status = inputs["position_status"].upper()
+    premium = inputs["premium"]
     open_price = inputs["open_price"]
-    close_price = inputs["close_price"]
 
     if isinstance(contract_type, str):
         contract_type = ContractType[contract_type]
@@ -178,15 +185,12 @@ def create_options_position(inputs: dict) -> OptionsPosition:
 
     if isinstance(strike_price, str):
         strike_price = float(strike_price)
-        
-    if isinstance(position_status, str):
-        position_status = PositionStatus[position_status]
 
     if isinstance(open_price, str):
         open_price = float(open_price)
 
-    if isinstance(close_price, str):
-        close_price = float(close_price)
+    if isinstance(premium, str):
+        premium = float(premium)
 
     return OptionsPosition(
         position_id,
@@ -195,9 +199,7 @@ def create_options_position(inputs: dict) -> OptionsPosition:
         quantity,
         strike_price,
         expiration_date,
-        inputs["premium"],
+        premium,
         open_price,
-        open_date,
-        position_status,
-        close_price
+        open_date
     )

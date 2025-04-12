@@ -1,6 +1,5 @@
 CREATE SEQUENCE IF NOT EXISTS current_position_id START WITH 1 INCREMENT BY 1;
 
-
 CREATE TABLE IF NOT EXISTS option_positions (
     position_id INT PRIMARY KEY,
     ticker TEXT NOT NULL,

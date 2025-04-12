@@ -19,6 +19,29 @@ const TableSection = ({
         [expiredTableName]: { key: "expiration_date", direction: "asc" }
     });
 
+    // Enum representing the different tables we'll have
+    // might need to move this into app.js so it can reference it or just put it in a diff file or export it here idk
+    const TableType = Object.freeze({
+        ACTIVE: 'active',
+        EXPIRED: 'expired'
+    });
+
+    // Configs for each of the tables
+    // title {string} - The title of the table
+    // extraFields {string[]} - The extra fields to include for that table on top of the default fields, specified by their table key and label
+    const TableDetails = {
+        [TableType.ACTIVE]: {
+            title: "Active Positions",
+            extraFields: []
+        },
+        [TableType.EXPIRED]: {
+            title: "Expired Positions",
+            extraFields: [
+                { key: "profit", label: "Profit" }
+            ]
+        },
+    };
+
     // Handles when the DeletePosition button(the red X next to positions) is hit
     const handleDelete = async (position) => {
         // User must confirm that they want to delete the position
@@ -88,7 +111,24 @@ const TableSection = ({
 
     // Table to display the positions for both active and expired positions.
     // This is to enforce that the active and expired positions tables are identical.
-    const PositionsTable = ({ positions, title }) => {
+    const PositionsTable = ({ positions, tableType }) => {
+        const title = TableDetails[tableType].title;
+        const extraFields = TableDetails[tableType].extraFields;
+        
+        const baseFields = [
+            { key: "ticker", label: "Ticker" },
+            { key: "contract_type", label: "Type" },
+            { key: "quantity", label: "Quantity" },
+            { key: "strike_price", label: "Strike Price" },
+            { key: "expiration_date", label: "Expiration Date" },
+            { key: "premium", label: "Premium" },
+            { key: "open_price", label: "Open Price" },
+            { key: "open_date", label: "Open Date" },
+            { key: "position_status", label: "Position Status" },
+            { key: "close_price", label: "Close Price" },
+        ];
+        const combinedFields = [...baseFields, ...extraFields];
+
         return (
             <div className="w-full max-w-full mt-20 px-4">
                 <h1 className="text-white text-center text-2xl font-bold">{title}</h1>
@@ -96,18 +136,7 @@ const TableSection = ({
                     <thead>
                         <tr>
                             {/* This mapping creates the sorting buttons next to each header */}
-                            {[
-                                { key: "ticker", label: "Ticker" },
-                                { key: "contract_type", label: "Type" },
-                                { key: "quantity", label: "Quantity" },
-                                { key: "strike_price", label: "Strike Price" },
-                                { key: "expiration_date", label: "Expiration Date" },
-                                { key: "premium", label: "Premium" },
-                                { key: "open_price", label: "Open Price" },
-                                { key: "open_date", label: "Open Date" },
-                                { key: "position_status", label: "Position Status" },
-                                { key: "close_price", label: "Close Price" },
-                            ].map(({ key, label }) => (
+                            {combinedFields.map(({ key, label }) => (
                                 <th key={key} className="px-4 py-2 text-white">
                                     <div className="flex items-center">
                                         {label}
@@ -131,16 +160,9 @@ const TableSection = ({
                     <tbody>
                         {positions.map((pos, idx) => (
                             <tr key={idx}>
-                                <td>{pos.ticker}</td>
-                                <td>{pos.contract_type}</td>
-                                <td>{pos.quantity}</td>
-                                <td>{pos.strike_price}</td>
-                                <td>{pos.expiration_date}</td>
-                                <td>{pos.premium}</td>
-                                <td>{pos.open_price}</td>
-                                <td>{pos.open_date}</td>
-                                <td>{pos.position_status}</td>
-                                <td>{pos.close_price}</td>
+                                {combinedFields.map(field => (
+                                    <td>{pos[field.key]}</td>
+                                ))}
                                 <td>
                                     <button
                                         onClick={() => handleDelete(pos)}
@@ -160,8 +182,8 @@ const TableSection = ({
     return (
         <div className={`bg-gray-700 flex flex-col items-center justify-center transition-all duration-300 ${isInputVisible ? "w-5/6" : "w-full"}`}>
             {/* List of the position tables */}
-            <PositionsTable positions={activePositions} title={activeTableName} />
-            <PositionsTable positions={expiredPositions} title={expiredTableName} />
+            <PositionsTable positions={activePositions} tableType={TableType.ACTIVE} />
+            <PositionsTable positions={expiredPositions} tableType={TableType.EXPIRED} />
         </div>
     )
 }
