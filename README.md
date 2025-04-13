@@ -53,9 +53,8 @@ One main thing to have at the top is a jump-to section, which will let you jump 
 
 
 TODOs:
-Format the dollar fields(ex: open_price, profit, etc) to be prefixed with $ and have commas separating amounts
-
-Add a price section for active contracts, which will query for the option's latest price only on first load or refresh(both)
+Add a price section for active contracts, which will query for the option's latest price only on first load or refresh
+Need to first check if option(and underlying) is valid before trying to get price
 
 Add financial data(ex: implied volatility, delta, etc)
 

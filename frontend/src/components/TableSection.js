@@ -42,6 +42,25 @@ const TableSection = ({
         },
     };
 
+    // Fields to translate to USD format(ex: 1000.25 -> $1,000.25)
+    const currencyFields = [
+        "strike_price",
+        "premium",
+        "open_price",
+        "close_price",
+        "profit"
+    ];
+
+    // Translates a number into dollar format, where it's prefixed by $, is comma separated, and has 2 decimal points
+    const formatToUSD = (number) => {
+        return number.toLocaleString('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
     // Handles when the DeletePosition button(the red X next to positions) is hit
     const handleDelete = async (position) => {
         // User must confirm that they want to delete the position
@@ -161,9 +180,15 @@ const TableSection = ({
                     <tbody>
                         {positions.map((pos, idx) => (
                             <tr key={idx}>
-                                {combinedFields.map(field => (
-                                    <td>{pos[field.key]}</td>
-                                ))}
+                                {combinedFields.map(field => {
+                                    const value = pos[field.key];
+                                    const isCurrencyField = currencyFields.includes(field.key);
+                                    return (
+                                        <td>
+                                            {isCurrencyField ? formatToUSD(value) : value}
+                                        </td>
+                                    );
+                                })}
                                 <td>
                                     <button
                                         onClick={() => handleDelete(pos)}
