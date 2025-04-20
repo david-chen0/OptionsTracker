@@ -7,20 +7,19 @@ autoprefixer(npm)
 framer-motion(npm)
 
 To refresh TailwindCSS, run(in the frontend dir):
+```
 npx @tailwindcss/cli -i ./src/index.css -o ./src/output.css --watch
-
+```
 
 To start webpage/server(for now):
-On one terminal, first launch the virtual env using
-.\venv\Scripts\Activate
+On one terminal, first launch the virtual env using `.\venv\Scripts\Activate`
 
-Then do
-python backend/run.py
+Then do `python backend/run.py`
 
-On another, go into frontend directory then do
-npm start
+On another, go into frontend directory then do `npm start`
+The above is for dev mode, to use a production build first build it with `npm run build` then run `serve -s build`
 
-Webpage will be at http://localhost:3000/, running npm start should autostart it though
+Webpage will be at http://localhost:3000/, running `npm start` should autostart it though
 
 PSQL:
 Use \l to see databases
@@ -53,8 +52,11 @@ One main thing to have at the top is a jump-to section, which will let you jump 
 
 
 TODOs:
-Add a price section for active contracts, which will query for the option's latest price only on first load or refresh
-Need to first check if option(and underlying) is valid before trying to get price
+Add a little refresh button to get latest prices too(maybe only have it work during market hours?)
+
+Add percentage to profit
+
+Make a loading screen since it takes a while to load the current prices
 
 Add financial data(ex: implied volatility, delta, etc)
 

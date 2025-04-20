@@ -32,12 +32,14 @@ const TableSection = ({
     const TableDetails = {
         [TableType.ACTIVE]: {
             title: "Active Positions",
-            extraFields: []
+            extraFields: [
+                { key: "current_price", label: "Current Price" }
+            ]
         },
         [TableType.EXPIRED]: {
             title: "Expired Positions",
             extraFields: [
-                { key: "profit", label: "Profit" }
+                { key: "close_price", label: "Close Price" }
             ]
         },
     };
@@ -48,7 +50,8 @@ const TableSection = ({
         "premium",
         "open_price",
         "close_price",
-        "profit"
+        "profit",
+        "current_price"
     ];
 
     // Translates a number into dollar format, where it's prefixed by $, is comma separated, and has 2 decimal points
@@ -145,7 +148,7 @@ const TableSection = ({
             { key: "open_price", label: "Open Price" },
             { key: "open_date", label: "Open Date" },
             { key: "position_status", label: "Position Status" },
-            { key: "close_price", label: "Close Price" },
+            { key: "profit", label: "Profit" }
         ];
         const combinedFields = [...baseFields, ...extraFields];
 

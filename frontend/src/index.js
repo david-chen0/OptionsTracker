@@ -6,6 +6,8 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+// Strict mode is only for development, does not affect production
+// It causes many things(ex: useEffect) to be run twice(which is why you'll see double the API calls in development mode)
 root.render(
   <React.StrictMode>
     <App />

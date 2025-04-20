@@ -21,7 +21,6 @@ class PositionStatus(Enum):
     Represents the current status of the position
     """
     OPEN = "open"
-    CLOSED = "closed"
     EXPIRED = "expired"
     EXERCISED = "exercised"
 
@@ -44,6 +43,17 @@ class OptionsPosition:
         position_status (PositionStatus): The status of the options position
         close_price (float): The price of the underlying security when the contract closed, set to -1 when the contract is still active
         profit (float): The total profit from this position, set to -1 when the contract is still active(change when we support current prices)
+        current_price (float): The current price of the option, set to -1 for expired contracts
+        blind_init (bool): Indicates if we are creating the option blind, which means we have to retrieve information like current price, underlying asset price, etc
+
+    Attributes that are retrieved during blind init(don't use blind init if you are setting any of these):
+        position_status
+        close_price
+        profit
+        current_price
+
+    Attributes in the object but not stored in the DB:
+        current_price
     """
 
     position_id: int
@@ -60,6 +70,7 @@ class OptionsPosition:
     position_status: PositionStatus
     close_price: float
     profit: float
+    current_price: float
 
     def __init__(
         self,
@@ -74,8 +85,10 @@ class OptionsPosition:
         open_price: float,
         open_date: date,
         position_status: PositionStatus = PositionStatus.OPEN,
-        close_price: float = -1,
-        profit: float = -1
+        close_price: float = None,
+        profit: float = None,
+        current_price: float = -1,
+        blind_init = True
     ):
         # Pre-checks to make sure the arguments make sense
         if not open_date < expiration_date:
@@ -84,8 +97,6 @@ class OptionsPosition:
             raise Exception("The option premium must be positive")
         if not quantity > 0:
             raise Exception("Quantity must be positive")
-        # check ticker exists
-        # check option(for ticker and expiration date) exists
 
         self.position_id = position_id
         self.ticker = ticker.upper()
@@ -99,15 +110,23 @@ class OptionsPosition:
         self.open_price = open_price
         self.open_date = open_date
 
-        # Sets accurate profit for expired positions, otherwise sets profit to -1(change when we support current prices)
-        if self.is_expired and close_price == -1:
-            underlying_price = get_security_closing_price(ticker, expiration_date)
-            self.update_position_at_maturity(underlying_price)
+        # Fields that are not stored in the DB, needs to be set first, otherwise objects created using the DB will have these fields set to None
+        if not self.is_expired:
+            self.current_price = get_current_option_price(self.ticker, self.expiration_date, self.strike_price, self.contract_type == ContractType.CALL)
         else:
+            self.current_price = -1
+
+        # Fields that are stored in the DB
+        if not blind_init:
             self.position_status = position_status
             self.close_price = close_price
             self.profit = profit
-
+        elif not self.is_expired:
+            self.update_active_contract()
+        else:
+            underlying_price = get_security_closing_price(self.ticker, expiration_date)
+            self.update_position_at_maturity(underlying_price)
+    
     def __json__(self) -> dict:
         """
         Converts current options position to a dictionary format so that it can be saved to JSON format
@@ -126,7 +145,8 @@ class OptionsPosition:
             "open_date": self.open_date.isoformat(),
             "position_status": self.position_status.name,
             "close_price": self.close_price,
-            "profit": self.profit
+            "profit": self.profit,
+            "current_price": self.current_price
         }
     
     def update_position_id(self, position_id: int):
@@ -135,6 +155,14 @@ class OptionsPosition:
         """
         print(f"Updating the position_id of {self.position_id} to {position_id}")
         self.position_id = position_id
+
+    def update_active_contract(self):
+        """
+        Retrieves the current price of the active contract and updates the position accordingly
+        """
+        self.position_status = PositionStatus.OPEN
+        self.current_price = get_current_option_price(self.ticker, self.expiration_date, self.strike_price, self.contract_type == ContractType.CALL)
+        self.profit = self.calculate_profit()
     
     def update_position_at_maturity(self, underlying_expiration_price: float):
         """
@@ -148,25 +176,27 @@ class OptionsPosition:
             self.position_status = PositionStatus.EXPIRED
         self.close_price = underlying_expiration_price
         self.profit = self.calculate_profit()
+        self.current_price = -1 # Setting current price to -1 for expired contracts
     
     def calculate_profit(self) -> float:
         """
         Returns the total profit of the position.
         """
+        profit_per_underlying = 0 # So profit per contract is 100 times this
         if self.position_status == PositionStatus.OPEN:
-            raise NotImplementedError("Position value has not been implemented for open positions yet")
-        
-        price_diff = self.close_price - self.strike_price
-        profit_per_contract = -1 * self.premium
-
-        if self.contract_type == ContractType.CALL:
-            profit_per_contract += max(price_diff, 0)
-        elif self.contract_type == ContractType.PUT:
-            profit_per_contract += max(-1 * price_diff, 0)
+            profit_per_underlying = self.current_price - self.premium
         else:
-            raise ValueError(f"Unsupported contract type: {self.contract_type}")
+            price_diff = self.close_price - self.strike_price
+            profit_per_underlying = -1 * self.premium
+
+            if self.contract_type == ContractType.CALL:
+                profit_per_underlying += max(price_diff, 0)
+            elif self.contract_type == ContractType.PUT:
+                profit_per_underlying += max(-1 * price_diff, 0)
+            else:
+                raise ValueError(f"Unsupported contract type: {self.contract_type}")
         
-        return self.quantity * profit_per_contract * 100 * (1 if self.trade_direction == TradeDirection.LONG else -1)
+        return self.quantity * profit_per_underlying * 100 * (1 if self.trade_direction == TradeDirection.LONG else -1)
 
 # TODO: I just slapped this in here since I can't put it into common, since it'll create a circular dependency
 # figure out where to put it
@@ -178,9 +208,11 @@ def string_to_date(date_str: str) -> date:
     """
     return datetime.strptime(date_str, "%Y-%m-%d").date()
 
-def create_options_position(inputs: dict) -> OptionsPosition:
+def blind_create_options_position(inputs: dict) -> OptionsPosition:
     """
     Creates and returns an option position using the input dictionary.
+
+    Creation is blind, which means that we don't have certain pieces of information such as current price of the underlying asset or the option.
 
     This should be used over OptionsPosition(**inputs) because the constructor has some special checks.
     """
@@ -224,5 +256,6 @@ def create_options_position(inputs: dict) -> OptionsPosition:
         expiration_date,
         premium,
         open_price,
-        open_date
+        open_date,
+        blind_init = True
     )

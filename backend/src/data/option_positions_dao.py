@@ -66,7 +66,8 @@ def row_to_options_position(row: dict) -> OptionsPosition:
         open_date=row[10],
         position_status=PositionStatus(row[11]),
         close_price=float(row[12]) if row[12] is not None else None,
-        profit=float(row[13]) if row[13] is not None else None
+        profit=float(row[13]) if row[13] is not None else None,
+        blind_init=False
     )
 
 

@@ -9,13 +9,29 @@ from util.common import *
 # Tomorrow's date formatted as YYYY-MM-DD
 tomorrow_date = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
 
+# Dictionary containing the tickers we've already instantiated(computing power for memory tradeoff)
+tickers = {}
+
+def get_security_ticker_object(ticker: str) -> yf.Ticker:
+    """
+    Returns the Ticker object for the input ticker string
+
+    TODO: Check if exception is thrown when the ticker doesn't exist
+    """
+    if ticker in tickers:
+        return tickers[ticker]
+
+    security = yf.Ticker(ticker)
+    tickers[ticker] = security
+    return security
+
 def get_security_closing_price(ticker: str, date: date) -> float:
     """
     Returns the closing price for the input ticker and date.
 
     Date must be in the format of YYYY-MM-DD.
     """
-    security = yf.Ticker(ticker)
+    security = get_security_ticker_object(ticker)
 
     # Fetches data from current day to next day since the results are [start date, end day)
     current_day = datetime.combine(date, datetime.min.time())
@@ -29,4 +45,29 @@ def get_security_closing_price(ticker: str, date: date) -> float:
     # Rounding the result to the penny since Yahoo finance's result often has floating point errors
     return round(historical_data['Close'].iloc[0], 2)
 
-# TODO: Implement a method to get current options prices    
+def get_current_option_price(
+    ticker: str,
+    expiration_date: str,
+    strike: float,
+    is_call: bool
+) -> float:
+    """
+    Returns the current price for the input option
+
+    ticker: Ticker for the underlying security
+    expiration_date: Expiration date of the option as a YYYY-MM-DD string
+    strike: Strike price of the option
+    is_call: True if option is a call option, false for put option
+    """
+    security = get_security_ticker_object(ticker)
+    
+    expiry = expiration_date.strftime("%Y-%m-%d")
+    entire_option_chain = security.option_chain(date=expiry)
+    option_chain = entire_option_chain.calls if is_call else entire_option_chain.puts
+    
+    try:
+        option = option_chain[option_chain.strike == strike]
+        return float(option.lastPrice.iloc[0])
+    except:
+        # print(option_chain) # for debugging, remove once done
+        raise Exception(f"Provided strike {strike} with expiration date {expiration_date} is not present in the option chain for {ticker}")

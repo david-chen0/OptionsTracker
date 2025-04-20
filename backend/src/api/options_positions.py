@@ -66,8 +66,6 @@ def get_active_positions():
 def get_expired_positions():
     # TODO: This is pretty inefficient, think of a better way to do this
     # Probably just re-add that global list to represent the JSON object, might need a diff design with async
-
-    # TODO: We can't just return a list of OptionsPosition objects, since they aren't JSON serializable
     return [position.__json__() for position in expired_positions], 200
 
 
@@ -80,7 +78,7 @@ def add_position():
         return {'error': 'Invalid data'}, 400
     
     # Create a new OptionsPositions instance
-    new_position = create_options_position(data)
+    new_position = blind_create_options_position(data)
 
     position_id = add_option_position(new_position)
     new_position.update_position_id(position_id)
