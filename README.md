@@ -29,34 +29,18 @@ Use \d <table_name> to describe a table/sequence
 Use ALTER SEQUENCE <sequence_name> RESTART WITH 1; to restart a sequence
 
 
-TODO: Flush out the code's logic of how everything works in the backend here once it's all been decided
-
-
-Frontend idea:
-The page will sorta be split into two parts, one part(on the left) contains the tables, we'll call this TableSection, and the other part(on the right) contains the input boxes, we'll call this InputSection
-
-TableSection:
-This will take up most of the screen width(let's say around 75%). When the InputSection is hidden(see that section for it), it should take up all of the width
-
-Top will be newly expired section(once we implement it, skip for now) followed by active, then expired positions
-
-
-InputSection:
-This will take up just about 1/6th of the screen width
-
-There'll be an option to hide this, in which the InputSection just slides into to right and disappears with a tiny tab/bar that can be clicked to pull it back out
-
-The inputs will be at the bottom, while the top will contain other stuff
-
-One main thing to have at the top is a jump-to section, which will let you jump to newly expired, active, or expired table
-
-
 TODOs:
 Add a little refresh button to get latest prices too(maybe only have it work during market hours?)
+
+Change the table order to be more fitting(ticker -> contract_type -> expiration_date -> strike_price -> trade_direction -> quantity -> premium -> open_price -> position_status -> current_price/close_price, profit -> actions)
 
 Add percentage to profit
 
 Make a loading screen since it takes a while to load the current prices
+
+Containerize the application(so that anyone can spin it up) and then formalize everything lying around(basically get it ready as if an MVP)
+Note that containerizing will isolate most things(ex: PSQL), will take a long time to setup but once setup anyone can run this app
+by just spinning up the container
 
 Add financial data(ex: implied volatility, delta, etc)
 

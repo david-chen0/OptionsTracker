@@ -151,6 +151,7 @@ const InputSection = ({
                             id="strike_price"
                             placeholder="Strike Price"
                             ref={(e) => (formRefs.current.strike_price = e)}
+                            step="0.01" // Allows for two decimals
                             required
                         />
 
@@ -176,6 +177,7 @@ const InputSection = ({
                             id="premium"
                             placeholder="Premium"
                             ref={(e) => (formRefs.current.premium = e)}
+                            step="0.01" // Allows for two decimals
                             required
                         />
 
@@ -189,6 +191,7 @@ const InputSection = ({
                             id="open_price"
                             placeholder="Open Price"
                             ref={(e) => (formRefs.current.open_price = e)}
+                            step="0.01" // Allows for two decimals
                             required
                         />
 

@@ -163,6 +163,7 @@ class OptionsPosition:
         self.position_status = PositionStatus.OPEN
         self.current_price = get_current_option_price(self.ticker, self.expiration_date, self.strike_price, self.contract_type == ContractType.CALL)
         self.profit = self.calculate_profit()
+        self.close_price = -1
     
     def update_position_at_maturity(self, underlying_expiration_price: float):
         """
