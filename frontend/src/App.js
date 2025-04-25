@@ -55,7 +55,7 @@ function App() {
     };
 
     return (
-        <div className="h-screen flex flex-row transition-all duration-300">
+        <div className="h-screen flex flex-row overflow-hidden transition-all duration-300">
             {/* Table Section - Expands when InputSection is hidden */}
             <TableSection
                 isInputVisible={isInputVisible}

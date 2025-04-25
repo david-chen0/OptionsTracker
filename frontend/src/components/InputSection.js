@@ -82,7 +82,13 @@ const InputSection = ({
     
             {/* Input Panel */}
             {isInputVisible && (
-                <div className={`bg-gray-600 relative transition-all duration-300 ${isInputVisible ? "w-1/6" : "w-0"} flex flex-col h-screen items-center justify-center`}>
+                <div className={`bg-gray-600 relative transition-all duration-300 flex flex-col h-screen items-center justify-center`}
+                    style={{
+                        width: isInputVisible ? '16.666%' : '0',
+                        opacity: isInputVisible ? 1 : 0,
+                        transition: 'width 0.5s ease, opacity 0.3s ease'
+                    }}
+                >
                     <h2 className="text-white text-center text-2xl font-bold">Add New Position</h2>
                     <form className="block w-full items-center gap-3 mt-4" onSubmit={handleAddPosition}>
                         <label htmlFor="ticker" className={fieldNameDesign}>

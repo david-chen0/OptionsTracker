@@ -153,7 +153,7 @@ const TableSection = ({
         const combinedFields = [...baseFields, ...extraFields];
 
         return (
-            <div className="w-full max-w-full mt-20 px-4">
+            <div>
                 <h1 className="text-white text-center text-2xl font-bold">{title}</h1>
                 <table className="w-full border border-gray-300">
                     <thead>
@@ -209,10 +209,13 @@ const TableSection = ({
     };
 
     return (
-        <div className={`bg-gray-700 flex flex-col items-center justify-center transition-all duration-300 ${isInputVisible ? "w-5/6" : "w-full"}`}>
-            {/* List of the position tables */}
-            <PositionsTable positions={activePositions} tableType={TableType.ACTIVE} />
-            <PositionsTable positions={expiredPositions} tableType={TableType.EXPIRED} />
+        <div className={`bg-gray-700 flex flex-col transition-all duration-500 ${isInputVisible ? "w-5/6" : "w-full"} h-screen`}>
+            {/* This div below automatically handles height adjustment for scrolling */}
+            <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-6">
+                {/* List of the position tables */}
+                <PositionsTable positions={activePositions} tableType={TableType.ACTIVE} />
+                <PositionsTable positions={expiredPositions} tableType={TableType.EXPIRED} />
+            </div>
         </div>
     )
 }
