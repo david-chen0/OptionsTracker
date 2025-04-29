@@ -30,9 +30,11 @@ Use ALTER SEQUENCE <sequence_name> RESTART WITH 1; to restart a sequence
 
 
 TODOs:
-Add a little refresh button to get latest prices too(maybe only have it work during market hours?)
+MAYBE: Pivot this(or make a new project) where we just setup a site for my projects and you can click on each individual one to use
 
-Change the table order to be more fitting(ticker -> contract_type -> expiration_date -> strike_price -> trade_direction -> quantity -> premium -> open_price -> position_status -> current_price/close_price, profit -> actions)
+Add searching by fields(ex: search by ticker NVDA or search by expiration date)(frontend)
+
+Add a little refresh button to get latest prices too(maybe only have it work during market hours?)
 
 Add percentage to profit
 
@@ -43,8 +45,6 @@ Note that containerizing will isolate most things(ex: PSQL), will take a long ti
 by just spinning up the container
 
 Add financial data(ex: implied volatility, delta, etc)
-
-Add searching by fields(ex: search by ticker NVDA or search by expiration date)(frontend)
 
 Allow users to update fields(ex: quantity, premium)
 

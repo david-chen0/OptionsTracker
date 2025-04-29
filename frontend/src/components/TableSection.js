@@ -44,6 +44,39 @@ const TableSection = ({
         },
     };
 
+    // Fields that are in all tables
+    const baseFields = [
+        { key: "ticker", label: "Ticker" },
+        { key: "contract_type", label: "Type" },
+        { key: "quantity", label: "Quantity" },
+        { key: "trade_direction", label: "Trade Direction" },
+        { key: "strike_price", label: "Strike Price" },
+        { key: "expiration_date", label: "Expiration Date" },
+        { key: "premium", label: "Premium" },
+        { key: "open_price", label: "Open Price" },
+        { key: "open_date", label: "Open Date" },
+        { key: "position_status", label: "Position Status" },
+        { key: "profit", label: "Profit" }
+    ];
+
+    // Order that the table will use for all the possible fields(by key)
+    const fieldOrder = [
+        'ticker',
+        'contract_type',
+        'expiration_date',
+        'strike_price',
+        'trade_direction',
+        'quantity',
+        'premium',
+        'open_price',
+        'open_date',
+        'position_status',
+        'current_price',
+        'close_price',
+        'profit'
+    ];
+
+
     // Fields to translate to USD format(ex: 1000.25 -> $1,000.25)
     const currencyFields = [
         "strike_price",
@@ -137,20 +170,9 @@ const TableSection = ({
         const title = TableDetails[tableType].title;
         const extraFields = TableDetails[tableType].extraFields;
         
-        const baseFields = [
-            { key: "ticker", label: "Ticker" },
-            { key: "contract_type", label: "Type" },
-            { key: "quantity", label: "Quantity" },
-            { key: "trade_direction", label: "Trade Direction" },
-            { key: "strike_price", label: "Strike Price" },
-            { key: "expiration_date", label: "Expiration Date" },
-            { key: "premium", label: "Premium" },
-            { key: "open_price", label: "Open Price" },
-            { key: "open_date", label: "Open Date" },
-            { key: "position_status", label: "Position Status" },
-            { key: "profit", label: "Profit" }
-        ];
-        const combinedFields = [...baseFields, ...extraFields];
+        const orderedCombinedFields = [...baseFields, ...extraFields].sort((a, b) => {
+            return fieldOrder.indexOf(a.key) - fieldOrder.indexOf(b.key);
+        });
 
         return (
             <div>
@@ -159,7 +181,7 @@ const TableSection = ({
                     <thead>
                         <tr>
                             {/* This mapping creates the sorting buttons next to each header */}
-                            {combinedFields.map(({ key, label }) => (
+                            {orderedCombinedFields.map(({ key, label }) => (
                                 <th key={key} className="px-4 py-2 text-white">
                                     <div className="flex items-center">
                                         {label}
@@ -183,7 +205,7 @@ const TableSection = ({
                     <tbody>
                         {positions.map((pos, idx) => (
                             <tr key={idx}>
-                                {combinedFields.map(field => {
+                                {orderedCombinedFields.map(field => {
                                     const value = pos[field.key];
                                     const isCurrencyField = currencyFields.includes(field.key);
                                     return (
