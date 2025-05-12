@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/OptionsTracker/static/css/main.81932e08.css",
+    "main.js": "/OptionsTracker/static/js/main.c01e223c.js",
+    "static/js/453.8ab44547.chunk.js": "/OptionsTracker/static/js/453.8ab44547.chunk.js",
+    "index.html": "/OptionsTracker/index.html",
+    "main.81932e08.css.map": "/OptionsTracker/static/css/main.81932e08.css.map",
+    "main.c01e223c.js.map": "/OptionsTracker/static/js/main.c01e223c.js.map",
+    "453.8ab44547.chunk.js.map": "/OptionsTracker/static/js/453.8ab44547.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.81932e08.css",
+    "static/js/main.c01e223c.js"
+  ]
+}
