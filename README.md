@@ -5,6 +5,7 @@ tailwind(npm)
 postcss(npm)
 autoprefixer(npm)
 framer-motion(npm)
+gh-pages(npm)
 
 To refresh TailwindCSS, run(in the frontend dir):
 ```
@@ -30,6 +31,8 @@ Use ALTER SEQUENCE <sequence_name> RESTART WITH 1; to restart a sequence
 
 
 TODOs:
+Setup GitHub Pages for this website
+
 MAYBE: Pivot this(or make a new project) where we just setup a site for my projects and you can click on each individual one to use
 
 Add searching by fields(ex: search by ticker NVDA or search by expiration date)(frontend)

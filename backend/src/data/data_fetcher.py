@@ -5,12 +5,16 @@ import yfinance as yf
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 from util.common import *
+from util.rate_limiter import *
 
 # Tomorrow's date formatted as YYYY-MM-DD
 tomorrow_date = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d')
 
 # Dictionary containing the tickers we've already instantiated(computing power for memory tradeoff)
 tickers = {}
+
+# Rate limiter for our calls to yfinance
+rate_limiter = RateLimitedExecutor(100, 1.0) # 100 calls a second
 
 def get_security_ticker_object(ticker: str) -> yf.Ticker:
     """
@@ -21,7 +25,7 @@ def get_security_ticker_object(ticker: str) -> yf.Ticker:
     if ticker in tickers:
         return tickers[ticker]
 
-    security = yf.Ticker(ticker)
+    security = rate_limiter.call(yf.Ticker, ticker)
     tickers[ticker] = security
     return security
 
@@ -36,7 +40,7 @@ def get_security_closing_price(ticker: str, date: date) -> float:
     # Fetches data from current day to next day since the results are [start date, end day)
     current_day = datetime.combine(date, datetime.min.time())
     next_day = current_day + timedelta(days=1)
-    historical_data = security.history(start=current_day, end=next_day)
+    historical_data = rate_limiter.call(security.history, start=current_day, end=next_day)
     
     # Check if the data exists for the specified date
     if historical_data.empty:
@@ -62,7 +66,7 @@ def get_current_option_price(
     security = get_security_ticker_object(ticker)
     
     expiry = expiration_date.strftime("%Y-%m-%d")
-    entire_option_chain = security.option_chain(date=expiry)
+    entire_option_chain = rate_limiter.call(security.option_chain, date=expiry)
     option_chain = entire_option_chain.calls if is_call else entire_option_chain.puts
     
     try:
