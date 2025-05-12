@@ -22,6 +22,14 @@ The above is for dev mode, to use a production build first build it with `npm ru
 
 Webpage will be at http://localhost:3000/, running `npm start` should autostart it though
 
+GITHUB PAGES:
+Currently deployed to Github Pages using gh-pages dependency
+
+Need to run `npm run deploy` from the frontend directory to directly deploy the static files to Github Pages
+
+THE BACKEND DOES NOT WORK, GITHUB PAGES ONLY SERVES STATIC FILES
+
+
 PSQL:
 Use \l to see databases
 Use \c <DB> to go into a DB
@@ -31,8 +39,6 @@ Use ALTER SEQUENCE <sequence_name> RESTART WITH 1; to restart a sequence
 
 
 TODOs:
-Setup GitHub Pages for this website
-
 MAYBE: Pivot this(or make a new project) where we just setup a site for my projects and you can click on each individual one to use
 
 Add searching by fields(ex: search by ticker NVDA or search by expiration date)(frontend)
