@@ -27,20 +27,27 @@ def initialize_options_positions():
 
     numNewlyExpiredPositions = 0
     for active_position in active_positions:
-        # Break if the position is still active
         # The OptionsPosition object creation runs a check to see if the position is actually expired, regardless of what
         # the DB item has set for is_expired
         if not active_position.is_expired:
-            break
+            active_position.update_active_contract()
+            updates = {
+                'profit': active_position.profit
+            }
+            update_option_position(active_position.position_id, updates)
+            continue
 
         # Update the DB item's is_expired and closing_price fields and also the local OptionsPosition object
         underlying_price = get_security_closing_price(active_position.ticker, active_position.expiration_date)
+        active_position.update_position_at_maturity(underlying_price)
         updates = {
-            'closing_price': underlying_price,
+            'position_status': active_position.position_status.value,
+            'close_price': active_position.close_price,
+            'profit': active_position.profit,
             'is_expired': True
         }
         update_option_position(active_position.position_id, updates)
-        active_position.closing_price = underlying_price
+        active_position.close_price = underlying_price
         
         # We then increment numNewlyExpiredPositions(which is how we decide how many items to pop later from active_positions) and
         # then add to the back of expired_positions. This still guarantees that expired_positions is ordered by increasing

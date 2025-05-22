@@ -209,6 +209,10 @@ def update_option_position(position_id: int, updates: dict):
     # Fields that we allow the user to update
     valid_fields = {
         "quantity",
+        "close_price",
+        "profit",
+        "is_expired",
+        "position_status",
         "trade_direction",
         "premium"
     }
@@ -220,8 +224,7 @@ def update_option_position(position_id: int, updates: dict):
             raise Exception(f"Field {field} is not allowed to be updated")
         if field in fields_to_update:
             raise Exception("Can not add multiple of the same field to the updates dictionary")
-        else:
-            fields_to_update.add(field)
+        fields_to_update.add(field)
 
     # Constructing the query
     set_clause = ", ".join([f"{key} = %s" for key in updates.keys()])
@@ -237,6 +240,7 @@ def update_option_position(position_id: int, updates: dict):
     try:
         conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE)
         cursor.execute(command, values)
+        conn.commit()
     except Exception as e:
         conn.rollback()
         print(f"Encountered error {e}")

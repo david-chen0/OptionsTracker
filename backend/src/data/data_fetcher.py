@@ -71,7 +71,7 @@ def get_current_option_price(
     
     try:
         option = option_chain[option_chain.strike == strike]
-        return float(option.lastPrice.iloc[0])
+        return round(float(option.lastPrice.iloc[0]), 2)
     except:
         # print(option_chain) # for debugging, remove once done
         raise Exception(f"Provided strike {strike} with expiration date {expiration_date} is not present in the option chain for {ticker}")

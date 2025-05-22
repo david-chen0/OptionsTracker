@@ -197,7 +197,8 @@ class OptionsPosition:
             else:
                 raise ValueError(f"Unsupported contract type: {self.contract_type}")
         
-        return self.quantity * profit_per_underlying * 100 * (1 if self.trade_direction == TradeDirection.LONG else -1)
+        # Rounding to 2 decimal points to prevent floating point errors
+        return round(self.quantity * profit_per_underlying * 100 * (1 if self.trade_direction == TradeDirection.LONG else -1), 2)
 
 # TODO: I just slapped this in here since I can't put it into common, since it'll create a circular dependency
 # figure out where to put it
