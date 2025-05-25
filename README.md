@@ -1,3 +1,8 @@
+# OptionsTracker
+<p align="center">
+    <img src="docs/options_tracker_landing.png" alt="drawing" width="50%">
+</p>
+
 ## Description
 My personal way of tracking all my current and expired option positions.
 
