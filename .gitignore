@@ -1,5 +1,5 @@
 venv/
 .vs/
 *__pycache__*
-data/*
 .env
+**/node_modules/
